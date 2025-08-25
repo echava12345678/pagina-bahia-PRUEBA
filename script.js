@@ -55,6 +55,9 @@ const adminPaymentsSection = document.getElementById('admin-payments-section');
 const adminPaymentsTableBody = document.querySelector('#admin-payments-table tbody');
 const billListSection = document.getElementById('bill-list-section');
 
+// Nuevo DOM para la función de facturas mensuales
+const generateMonthlyInvoicesBtn = document.getElementById('generate-monthly-invoices-btn');
+
 
 // Global variables
 let currentResidentId = null;
@@ -130,7 +133,7 @@ loginForm.addEventListener('submit', async (e) => {
     showSpinner();
 
     try {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   if (username === 'admin' && password === 'admin123') { // Simple admin check
+        if (username === 'admin' && password === 'admin123') { // Simple admin check
             showPage(adminPanel);
             loadResidents();
             auth.signInWithEmailAndPassword('admin@edificio.com', password) // Use a static email for Firebase auth
@@ -179,6 +182,10 @@ showAddBillBtn.addEventListener('click', () => { toggleSection('add-bill-form');
 showUploadBillsBtn.addEventListener('click', () => { toggleSection('upload-bills-section'); billListSection.classList.remove('hidden'); });
 showChangePasswordBtn.addEventListener('click', () => { toggleSection('change-credentials-form'); billListSection.classList.remove('hidden'); });
 showAdminPaymentsBtn.addEventListener('click', () => { toggleSection('admin-payments-section'); loadAdminPayments(); });
+// Listener para el nuevo botón de facturas mensuales
+if(generateMonthlyInvoicesBtn) {
+    generateMonthlyInvoicesBtn.addEventListener('click', generateMonthlyInvoices);
+}
 
 
 // Resident CRUD operations
@@ -489,6 +496,55 @@ excelFile.addEventListener('change', async (e) => {
     reader.readAsArrayBuffer(file);
 });
 
+// Función para generar facturas mensuales para todos los residentes activos
+async function generateMonthlyInvoices() {
+    const concept = prompt("Por favor, introduce el concepto de la factura (ej. Administración Enero).");
+    if (!concept) {
+        alert("Concepto no válido. La generación de facturas ha sido cancelada.");
+        return;
+    }
+    const amount = prompt("Por favor, introduce el monto total de la factura.");
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
+        alert("Monto no válido. La generación de facturas ha sido cancelada.");
+        return;
+    }
+
+    if (!confirm(`¿Estás seguro de que quieres generar facturas de ${formatCurrency(Number(amount))} con el concepto "${concept}" para todos los residentes?`)) {
+        return;
+    }
+
+    showSpinner();
+    try {
+        const residentsSnapshot = await db.collection('residents').get();
+        const batch = db.batch();
+        const today = new Date();
+        const dueDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Último día del mes actual
+
+        for (const doc of residentsSnapshot.docs) {
+            const resident = doc.data();
+            const residentId = doc.id;
+            const newBillRef = db.collection('bills').doc();
+            const newBill = {
+                residentId: residentId,
+                dueDate: firebase.firestore.Timestamp.fromDate(dueDate),
+                amount: Number(amount),
+                concept: concept,
+                status: 'Pendiente',
+                paidAmount: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            batch.set(newBillRef, newBill);
+        }
+        await batch.commit();
+        alert('¡Facturas generadas y enviadas con éxito!');
+        loadResidents();
+    } catch (err) {
+        console.error("Error generating monthly invoices:", err);
+        alert('Error al generar las facturas mensuales.');
+    } finally {
+        hideSpinner();
+    }
+}
 
 // Load bill history for a specific resident
 async function showBillHistory(residentId) {
