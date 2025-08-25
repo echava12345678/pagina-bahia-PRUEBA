@@ -29,290 +29,264 @@ const residentsTableBody = document.querySelector('#residents-table tbody');
 const residentBillsTableBody = document.querySelector('#resident-bills-table tbody');
 const residentWelcome = document.getElementById('resident-welcome');
 const adminWelcome = document.getElementById('admin-welcome');
+const showAddResidentBtn = document.getElementById('show-add-resident-btn');
+const addResidentFormSection = document.getElementById('add-resident-form');
+const showUploadBillsBtn = document.getElementById('show-upload-bills-btn');
+const uploadBillsSection = document.getElementById('upload-bills-section');
+const showAddBillBtn = document.getElementById('show-add-bill-btn');
+const addBillFormSection = document.getElementById('add-bill-form');
+const excelFile = document.getElementById('excel-file');
+const residentSearch = document.getElementById('resident-search');
 const billHistoryModal = document.getElementById('bill-history-modal');
 const billHistoryTableBody = document.querySelector('#bill-history-table tbody');
-const modalTitle = document.getElementById('modal-title');
-const editBillModal = document.getElementById('edit-bill-modal');
-const editBillForm = document.getElementById('edit-bill-form');
-const residentSearch = document.getElementById('resident-search');
-const excelFile = document.getElementById('excel-file');
-const showAddResidentBtn = document.getElementById('show-add-resident-btn');
-const showAddBillBtn = document.getElementById('show-add-bill-btn');
-const showUploadBillsBtn = document.getElementById('show-upload-bills-btn');
-const addResidentFormSection = document.getElementById('add-resident-form');
-const addBillFormSection = document.getElementById('add-bill-form');
-const uploadBillsSection = document.getElementById('upload-bills-section');
-const changeCredentialsForm = document.getElementById('change-credentials-form');
-const changeCredentialsFormInner = document.getElementById('change-credentials-form-inner');
-const showChangePasswordBtn = document.getElementById('show-change-password-form');
-const credentialsError = document.getElementById('credentials-error');
-const credentialsSuccess = document.getElementById('credentials-success');
-const loadingSpinner = document.getElementById('loading-spinner');
-
-// Nuevo DOM del Historial de Pagos
+const modalCloseBtns = document.querySelectorAll('.modal .close-btn');
 const showAdminPaymentsBtn = document.getElementById('show-admin-payments-btn');
 const adminPaymentsSection = document.getElementById('admin-payments-section');
-const adminPaymentsTableBody = document.querySelector('#admin-payments-table tbody');
-const billListSection = document.getElementById('bill-list-section');
-
-// Nuevo DOM para la función de facturas mensuales
+const adminPaymentsTableBody = document.getElementById('admin-payments-table-body');
 const generateMonthlyInvoicesBtn = document.getElementById('generate-monthly-invoices-btn');
-const showGenerateInvoicesBtn = document.getElementById('show-generate-invoices-btn');
-const generateInvoicesForm = document.getElementById('generate-invoices-form');
-const autoInvoicesForm = document.getElementById('auto-invoices-form');
+const editBillModal = document.getElementById('edit-bill-modal');
+const editBillForm = document.getElementById('edit-bill-form');
+const showChangePasswordFormBtn = document.getElementById('show-change-password-form');
+const changeCredentialsForm = document.getElementById('change-credentials-form');
+const changeCredentialsFormInner = document.getElementById('change-credentials-form-inner');
+const loadingSpinner = document.getElementById('loading-spinner');
 
-// Global variables
-let currentResidentId = null;
-
-// --- Utility Functions ---
-
-function showPage(page) {
-    const pages = document.querySelectorAll('.page');
-    pages.forEach(p => p.classList.remove('active'));
+// Utility Functions
+const showPage = (page) => {
+    loginPage.classList.remove('active');
+    adminPanel.classList.remove('active');
+    residentPanel.classList.remove('active');
     page.classList.add('active');
-}
+};
 
-function showSpinner() {
+const showSpinner = () => {
     loadingSpinner.style.display = 'flex';
-}
+};
 
-function hideSpinner() {
+const hideSpinner = () => {
     loadingSpinner.style.display = 'none';
-}
+};
 
-// Función para mostrar/ocultar secciones de formularios y tablas
-function toggleSection(sectionIdToShow) {
-    const sections = [
-        addResidentFormSection, addBillFormSection, uploadBillsSection,
-        changeCredentialsForm, adminPaymentsSection,
-        billListSection, generateInvoicesForm
-    ];
-    sections.forEach(section => {
-        if (section && section.id === sectionIdToShow) {
-            section.classList.toggle('hidden');
-        } else if (section) {
-            section.classList.add('hidden');
-        }
-    });
-}
+const showMessage = (element, message, type) => {
+    element.textContent = message;
+    element.className = `message ${type}`;
+};
 
-
-function formatDate(timestamp) {
-    if (!timestamp || !timestamp.seconds) return '';
-    const date = new Date(timestamp.seconds * 1000);
-    // Para que muestre la fecha local correcta
-    const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-    return localDate.toLocaleDateString('es-CO', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
-}
-
-function parseCurrency(value) {
-    if (typeof value !== 'string') return value;
-    const cleanValue = value.replace(/\./g, '').replace(',', '.');
-    return parseFloat(cleanValue);
-}
-
-function formatCurrency(value) {
-    if (typeof value !== 'number' || isNaN(value)) return '$0';
-    return value.toLocaleString('es-CO', {
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CO', {
         style: 'currency',
-        currency: 'COP',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    });
-}
+        currency: 'COP'
+    }).format(amount);
+};
 
-// --- Login & Authentication ---
+const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
+const validateEmail = (email) => {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+};
+
+// Authentication
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        showSpinner();
+        try {
+            const doc = await db.collection('admins').doc(user.uid).get();
+            if (doc.exists) {
+                adminWelcome.textContent = `Bienvenido, Admin`;
+                showPage(adminPanel);
+                fetchResidents();
+            } else {
+                const residentDoc = await db.collection('residents').doc(user.uid).get();
+                if (residentDoc.exists) {
+                    const residentData = residentDoc.data();
+                    residentWelcome.textContent = `Bienvenido, ${residentData.name}`;
+                    showPage(residentPanel);
+                    fetchResidentBills(user.uid);
+                } else {
+                    await auth.signOut();
+                    showPage(loginPage);
+                    alert('Usuario no encontrado en la base de datos.');
+                }
+            }
+        } catch (error) {
+            console.error("Error al verificar el usuario:", error);
+            await auth.signOut();
+            showPage(loginPage);
+        } finally {
+            hideSpinner();
+        }
+    } else {
+        showPage(loginPage);
+    }
+});
 
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const username = loginForm['username-login'].value;
-    const password = loginForm['password-login'].value;
+    const username = document.getElementById('username-login').value;
+    const password = document.getElementById('password-login').value;
     loginError.textContent = '';
     showSpinner();
-
     try {
-        if (username === 'admin' && password === 'admin123') { // Simple admin check
-            showPage(adminPanel);
-            loadResidents();
-            auth.signInWithEmailAndPassword('admin@edificio.com', password) // Use a static email for Firebase auth
-                .catch(err => console.error("Admin Auth Error:", err));
-        } else {
-            const residentSnapshot = await db.collection('residents').where('username', '==', username).limit(1).get();
-            if (!residentSnapshot.empty) {
-                const resident = residentSnapshot.docs[0].data();
-                const residentId = residentSnapshot.docs[0].id;
-
-                if (resident.password === password) {
-                    showPage(residentPanel);
-                    residentWelcome.textContent = `Bienvenido, ${resident.name}`;
-                    currentResidentId = residentId;
-                    loadResidentBills(currentResidentId);
-                } else {
-                    loginError.textContent = 'Contraseña incorrecta.';
-                }
-            } else {
-                loginError.textContent = 'Usuario no encontrado.';
-            }
+        const userCredential = await auth.signInWithEmailAndPassword(username, password);
+    } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        let errorMessage = 'Error al iniciar sesión. Por favor, revisa tus credenciales.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            errorMessage = 'Usuario o contraseña incorrectos.';
         }
-    } catch (err) {
-        console.error("Login Error:", err);
-        loginError.textContent = 'Error al iniciar sesión. Intenta de nuevo.';
+        showMessage(loginError, errorMessage, 'error');
     } finally {
         hideSpinner();
     }
 });
 
-logoutBtn.addEventListener('click', () => {
-    auth.signOut();
-    showPage(loginPage);
+logoutBtn.addEventListener('click', async () => {
+    await auth.signOut();
 });
 
-residentLogoutBtn.addEventListener('click', () => {
-    auth.signOut();
-    showPage(loginPage);
+residentLogoutBtn.addEventListener('click', async () => {
+    await auth.signOut();
 });
 
-// --- Admin Panel Functions ---
+// Admin Panel - Resident Management
+showAddResidentBtn.addEventListener('click', () => {
+    addResidentFormSection.classList.toggle('hidden');
+});
 
-// Event listeners para mostrar formularios
-showAddResidentBtn.addEventListener('click', () => { toggleSection('add-resident-form'); billListSection.classList.remove('hidden'); });
-showAddBillBtn.addEventListener('click', () => { toggleSection('add-bill-form'); billListSection.classList.remove('hidden'); });
-showUploadBillsBtn.addEventListener('click', () => { toggleSection('upload-bills-section'); billListSection.classList.remove('hidden'); });
-showChangePasswordBtn.addEventListener('click', () => { toggleSection('change-credentials-form'); billListSection.classList.remove('hidden'); });
-showAdminPaymentsBtn.addEventListener('click', () => { toggleSection('admin-payments-section'); loadAdminPayments(); });
-// Listener para el nuevo botón de facturas automáticas
-showGenerateInvoicesBtn.addEventListener('click', () => { toggleSection('generate-invoices-form'); billListSection.classList.remove('hidden'); });
-
-// Resident CRUD operations
 residentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const residentId = residentForm['resident-id'].value;
-    const name = residentForm['resident-name'].value;
-    const depto = residentForm['resident-depto'].value;
-    const username = residentForm['resident-username'].value;
-    const password = residentForm['resident-password'].value;
-    const email = residentForm['resident-email'].value;
+    const residentId = document.getElementById('resident-id').value;
+    const name = document.getElementById('resident-name').value;
+    const depto = document.getElementById('resident-depto').value;
+    const email = document.getElementById('resident-email').value;
+    const username = document.getElementById('resident-username').value;
+    const password = document.getElementById('resident-password').value;
 
+    if (!validateEmail(email)) {
+        alert('Por favor, ingresa un correo electrónico válido.');
+        return;
+    }
 
     showSpinner();
     try {
+        const doc = await db.collection('residents').doc(residentId).get();
+        if (doc.exists) {
+            alert('El ID de residente ya existe. Por favor, usa un ID diferente.');
+            return;
+        }
+
         await db.collection('residents').doc(residentId).set({
             name,
             depto,
+            email,
             username,
-            password,
-            initialPassword: password,
-            credentialsChanged: false,
-            email
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         alert('Residente agregado exitosamente.');
         residentForm.reset();
-        loadResidents();
-    } catch (err) {
-        console.error("Error adding resident: ", err);
+        addResidentFormSection.classList.add('hidden');
+        fetchResidents();
+    } catch (error) {
+        console.error("Error al agregar residente:", error);
         alert('Error al agregar residente.');
     } finally {
         hideSpinner();
-        toggleSection(null); // Ocultar todos los formularios
     }
 });
 
-// Load and display residents
-async function loadResidents() {
+const fetchResidents = async () => {
     showSpinner();
     residentsTableBody.innerHTML = '';
     try {
-        const snapshot = await db.collection('residents').get();
+        const snapshot = await db.collection('residents').orderBy('depto').get();
         snapshot.forEach(doc => {
             const resident = doc.data();
-            const row = residentsTableBody.insertRow();
-            row.dataset.id = doc.id;
-            row.innerHTML = `
-                <td>${doc.id}</td>
+            const residentId = doc.id;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${residentId}</td>
                 <td>${resident.name}</td>
                 <td>${resident.depto}</td>
                 <td>${resident.username}</td>
                 <td>
-                    <button class="btn primary-btn view-bills-btn" data-id="${doc.id}">
+                    <button class="btn primary-btn view-bills-btn" data-id="${residentId}">
                         <i class="fas fa-eye"></i> Ver Facturas
                     </button>
-                    <button class="btn logout-btn delete-resident-btn" data-id="${doc.id}">
+                    <button class="btn logout-btn delete-resident-btn" data-id="${residentId}">
                         <i class="fas fa-trash-alt"></i> Eliminar
                     </button>
-                    <button class="btn secondary-btn send-email-btn" data-id="${doc.id}">
+                    <button class="btn secondary-btn send-email-btn" data-id="${residentId}">
                         <i class="fas fa-envelope"></i> Enviar Correo
                     </button>
                 </td>
                 <td>Descarga los recibos en "Ver facturas"</td>
             `;
+            residentsTableBody.appendChild(tr);
         });
-    } catch (err) {
-        console.error("Error loading residents:", err);
-        alert('Error al cargar residentes.');
+        attachResidentTableEvents();
+    } catch (error) {
+        console.error("Error al obtener residentes:", error);
     } finally {
         hideSpinner();
     }
-}
+};
 
-// Handle resident actions (view bills, delete resident)
-residentsTableBody.addEventListener('click', (e) => {
-    const viewBtn = e.target.closest('.view-bills-btn');
-    const deleteBtn = e.target.closest('.delete-resident-btn');
-    const sendEmailBtn = e.target.closest('.send-email-btn');
-
-    if (viewBtn) {
-        const residentId = viewBtn.dataset.id;
-        currentResidentId = residentId; // Store the current resident's ID
-        showBillHistory(residentId);
-    } else if (deleteBtn) {
-        const residentId = deleteBtn.dataset.id;
-        if (confirm('¿Estás seguro de que quieres eliminar a este residente y todas sus facturas?')) {
-            deleteResident(residentId);
-        }
-    } else if (sendEmailBtn) {
-        const residentId = sendEmailBtn.dataset.id;
-        sendEmailToResident(residentId);
-    }
-});
-
-// New function to delete a resident and their bills
-async function deleteResident(residentId) {
-    showSpinner();
-    try {
-        // 1. Eliminar todas las facturas del residente
-        const billsSnapshot = await db.collection('bills').where('residentId', '==', residentId).get();
-        const batch = db.batch();
-        billsSnapshot.forEach(doc => {
-            batch.delete(doc.ref);
+const attachResidentTableEvents = () => {
+    document.querySelectorAll('.view-bills-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const residentId = e.target.dataset.id;
+            fetchResidentBillsForAdmin(residentId);
         });
-        await batch.commit();
+    });
 
-        // 2. Eliminar el documento del residente
-        await db.collection('residents').doc(residentId).delete();
+    document.querySelectorAll('.delete-resident-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const residentId = e.target.dataset.id;
+            if (confirm('¿Estás seguro de que quieres eliminar este residente y todas sus facturas?')) {
+                showSpinner();
+                try {
+                    const residentDoc = db.collection('residents').doc(residentId);
+                    const billsSnapshot = await residentDoc.collection('bills').get();
+                    const batch = db.batch();
+                    billsSnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    batch.delete(residentDoc);
+                    await batch.commit();
+                    alert('Residente y sus facturas eliminados correctamente.');
+                    fetchResidents();
+                } catch (error) {
+                    console.error("Error al eliminar residente:", error);
+                    alert('Error al eliminar residente.');
+                } finally {
+                    hideSpinner();
+                }
+            }
+        });
+    });
 
-        alert('Residente y sus facturas eliminados exitosamente.');
-        loadResidents(); // Recargar la tabla
-    } catch (err) {
-        console.error("Error deleting resident:", err);
-        alert('Error al eliminar residente.');
-    } finally {
-        hideSpinner();
-    }
-}
+    document.querySelectorAll('.send-email-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const residentId = e.target.dataset.id;
+            sendEmail(residentId);
+        });
+    });
+};
 
-// Search functionality
-residentSearch.addEventListener('input', (e) => {
-    const filter = e.target.value.toLowerCase();
+residentSearch.addEventListener('keyup', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
     const rows = residentsTableBody.querySelectorAll('tr');
     rows.forEach(row => {
-        const id = row.cells[0].textContent.toLowerCase();
-        const name = row.cells[1].textContent.toLowerCase();
-        const depto = row.cells[2].textContent.toLowerCase();
-        if (id.includes(filter) || name.includes(filter) || depto.includes(filter)) {
+        const cells = row.querySelectorAll('td');
+        const textContent = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+        if (textContent.includes(searchTerm)) {
             row.style.display = '';
         } else {
             row.style.display = 'none';
@@ -320,196 +294,122 @@ residentSearch.addEventListener('input', (e) => {
     });
 });
 
-// --- FUNCIÓN AÑADIDA PARA ENVIAR CORREO ---
-async function sendEmail(recipientEmail, subject, body) {
-    try {
-        const response = await fetch('http://localhost:3000/api/send-email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                correo: recipientEmail,
-                asunto: subject,
-                cuerpo: body
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('La respuesta del servidor no fue exitosa.');
-        }
-
-        const data = await response.json();
-        console.log('Correo enviado:', data.message);
-        return true;
-
-    } catch (error) {
-        console.error('Error al enviar el email:', error);
-        alert(`Error al enviar el email: ${error.message}`);
-        return false;
-    }
-}
-
-async function sendEmailToResident(residentId) {
-    showSpinner();
-    try {
-        const residentDoc = await db.collection('residents').doc(residentId).get();
-        if (residentDoc.exists) {
-            const resident = residentDoc.data();
-            const emailSubject = `Recordatorio de Recibo`;
-            const emailBody = `Hola ${resident.name},\n\nTe recordamos que hay un nuevo recibo disponible en tu perfil. Por favor, ingresa a la aplicación para revisarlo.\n\nSaludos cordiales,\nEdificio Bahía Etapa A`;
-            const emailSent = await sendEmail(resident.email, emailSubject, emailBody);
-            if (emailSent) {
-                alert('Correo de recordatorio enviado exitosamente.');
-            }
-        } else {
-            alert('No se encontró al residente para enviar la notificación.');
-        }
-    } catch (err) {
-        console.error("Error sending email:", err);
-        alert('Error al enviar el correo.');
-    } finally {
-        hideSpinner();
-    }
-}
-// --- FIN DE LA FUNCIÓN AÑADIDA ---
-
-// Bill CRUD operations
-billForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const residentId = billForm['bill-resident-id'].value;
-    const dueDate = billForm['bill-due-date'].value;
-    const amount = parseCurrency(billForm['bill-amount'].value);
-    const concept = billForm['bill-concept'].value;
-    const status = billForm['bill-status'].value;
-    const paymentDate = billForm['bill-payment-date'].value;
-    const paidAmount = parseCurrency(billForm['bill-paid-amount'].value) || 0;
-
-    showSpinner();
-    try {
-        const localDueDate = new Date(dueDate);
-        const localPaymentDate = paymentDate ? new Date(paymentDate) : null;
-
-        await db.collection('bills').add({
-            residentId,
-            dueDate: firebase.firestore.Timestamp.fromDate(localDueDate),
-            amount,
-            concept,
-            status,
-            paymentDate: localPaymentDate ? firebase.firestore.Timestamp.fromDate(localPaymentDate) : null,
-            paidAmount: paidAmount,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        alert('Factura agregada exitosamente.');
-        billForm.reset();
-        loadResidents();
-
-        // --- CÓDIGO AÑADIDO PARA ENVIAR CORREO ---
-        const residentDoc = await db.collection('residents').doc(residentId).get();
-        if (residentDoc.exists) {
-            const resident = residentDoc.data();
-            const emailSubject = `Nueva Factura: ${concept}`;
-            const emailBody = `Hola ${resident.name},\n\nSe ha generado una nueva factura en tu perfil por el concepto de ${concept} con un valor de ${formatCurrency(amount)}.\n\nPor favor, ingresa a tu perfil para verificar los detalles.\n\nSaludos cordiales,\nEdificio Bahía Etapa A`;
-            await sendEmail(resident.email, emailSubject, emailBody);
-        } else {
-            console.error("No se encontró al residente para enviar la notificación.");
-        }
-        // --- FIN DEL CÓDIGO AÑADIDO ---
-
-    } catch (err) {
-        console.error("Error adding bill: ", err);
-        alert('Error al agregar factura.');
-    } finally {
-        hideSpinner();
-        toggleSection(null); // Ocultar todos los formularios
-    }
+// Admin Panel - Bill Management
+showUploadBillsBtn.addEventListener('click', () => {
+    uploadBillsSection.classList.toggle('hidden');
 });
 
-// Handle Excel file upload
-excelFile.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    showSpinner();
+showAddBillBtn.addEventListener('click', () => {
+    addBillFormSection.classList.toggle('hidden');
+});
 
+excelFile.addEventListener('change', (e) => {
+    const file = e.target.files[0];
     const reader = new FileReader();
     reader.onload = async (event) => {
         const data = new Uint8Array(event.target.result);
         const workbook = XLSX.read(data, {
             type: 'array'
         });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(worksheet, {
-            header: 1
-        });
+        const firstSheet = workbook.SheetNames[0];
+        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-        const header = json[0];
-        const rows = json.slice(1);
-
-        const idIndex = header.indexOf('id_residente');
-        const dueDateIndex = header.indexOf('fecha_vencimiento');
-        const amountIndex = header.indexOf('monto');
-        const statusIndex = header.indexOf('estado');
-        const conceptIndex = header.indexOf('concepto');
-        const paymentDateIndex = header.indexOf('fecha_pago');
-        const paidAmountIndex = header.indexOf('monto_pagado');
-
-        if (idIndex === -1 || dueDateIndex === -1 || amountIndex === -1) {
-            alert('El archivo Excel debe contener las columnas: id_residente, fecha_vencimiento, monto.');
-            hideSpinner();
-            return;
-        }
-
+        showSpinner();
+        const batch = db.batch();
         try {
-            const batch = db.batch();
-            for (const row of rows) {
-                if (row[idIndex]) {
-                    const billRef = db.collection('bills').doc();
-                    const dueDate = new Date((row[dueDateIndex] - (25567 + 1)) * 86400 * 1000); // Excel date to JS Date
-                    const paymentDate = row[paymentDateIndex] ? new Date((row[paymentDateIndex] - (25567 + 1)) * 86400 * 1000) : null;
-                    const paidAmount = row[paidAmountIndex] || 0;
-
-                    batch.set(billRef, {
-                        residentId: row[idIndex].toString(),
-                        dueDate: firebase.firestore.Timestamp.fromDate(dueDate),
-                        amount: parseFloat(row[amountIndex]),
-                        concept: row[conceptIndex] || 'Sin concepto',
-                        status: row[statusIndex] || 'Pendiente',
-                        paymentDate: paymentDate ? firebase.firestore.Timestamp.fromDate(localPaymentDate) : null,
-                        paidAmount: paidAmount,
+            for (const row of jsonData) {
+                const residentId = row.id_residente;
+                const residentDoc = await db.collection('residents').doc(residentId).get();
+                if (residentDoc.exists) {
+                    const billData = {
+                        dueDate: row.fecha_vencimiento ? firebase.firestore.Timestamp.fromDate(new Date(row.fecha_vencimiento)) : null,
+                        amount: row.monto,
+                        status: row.estado || 'Pendiente',
+                        concept: row.concepto || 'Factura',
+                        paidDate: row.fecha_pago ? firebase.firestore.Timestamp.fromDate(new Date(row.fecha_pago)) : null,
+                        paidAmount: row.monto_pagado || 0,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    };
+                    const newBillRef = db.collection('residents').doc(residentId).collection('bills').doc();
+                    batch.set(newBillRef, billData);
+                } else {
+                    console.warn(`Residente con ID ${residentId} no encontrado. Se omite la factura.`);
                 }
             }
             await batch.commit();
-            alert('Facturas cargadas exitosamente desde Excel.');
-            loadResidents();
+            alert('Facturas cargadas exitosamente.');
+            excelFile.value = '';
         } catch (error) {
-            console.error('Error al procesar el archivo Excel:', error);
-            alert('Error al cargar las facturas. Verifica el formato del archivo.');
+            console.error("Error al cargar facturas desde Excel:", error);
+            alert('Error al cargar facturas. Revisa el formato del archivo.');
         } finally {
             hideSpinner();
-            toggleSection(null);
         }
     };
     reader.readAsArrayBuffer(file);
 });
 
-// Función para generar facturas mensuales para todos los residentes activos
-autoInvoicesForm.addEventListener('submit', async (e) => {
+
+billForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    const concept = autoInvoicesForm['auto-concept'].value;
-    const amount = Number(autoInvoicesForm['auto-amount'].value);
-    const repeatPeriod = autoInvoicesForm['auto-repeat'].value;
-    const dueDateStr = autoInvoicesForm['auto-due-date'].value;
-    
-    if (!concept || isNaN(amount) || amount <= 0 || !dueDateStr) {
-        alert("Por favor, completa todos los campos correctamente.");
+    const residentId = document.getElementById('bill-resident-id').value;
+    const dueDate = document.getElementById('bill-due-date').value;
+    const amount = parseFloat(document.getElementById('bill-amount').value);
+    const concept = document.getElementById('bill-concept').value;
+    const status = document.getElementById('bill-status').value;
+    const paymentDate = document.getElementById('bill-payment-date').value;
+    const paidAmount = parseFloat(document.getElementById('bill-paid-amount').value) || 0;
+
+    showSpinner();
+    try {
+        const residentDoc = await db.collection('residents').doc(residentId).get();
+        if (!residentDoc.exists) {
+            alert('El ID de residente no existe.');
+            return;
+        }
+
+        const billData = {
+            dueDate: firebase.firestore.Timestamp.fromDate(new Date(dueDate)),
+            amount: amount,
+            concept: concept,
+            status: status,
+            paidDate: paymentDate ? firebase.firestore.Timestamp.fromDate(new Date(paymentDate)) : null,
+            paidAmount: paidAmount,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('residents').doc(residentId).collection('bills').add(billData);
+        alert('Factura agregada exitosamente.');
+        billForm.reset();
+        addBillFormSection.classList.add('hidden');
+    } catch (error) {
+        console.error("Error al agregar factura:", error);
+        alert('Error al agregar factura.');
+    } finally {
+        hideSpinner();
+    }
+});
+
+generateMonthlyInvoicesBtn.addEventListener('click', async () => {
+    if (!confirm('¿Estás seguro de que quieres generar facturas mensuales para todos los residentes?')) {
         return;
     }
 
-    if (!confirm(`¿Estás seguro de que quieres generar facturas de ${formatCurrency(amount)} con el concepto "${concept}" para todos los residentes?`)) {
+    const dueDate = prompt('Ingresa la fecha de vencimiento para las facturas (YYYY-MM-DD):');
+    if (!dueDate || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+        alert('Fecha de vencimiento no válida. Por favor, usa el formato YYYY-MM-DD.');
+        return;
+    }
+
+    const amount = parseFloat(prompt('Ingresa el monto para las facturas:'));
+    if (isNaN(amount) || amount <= 0) {
+        alert('Monto no válido. Debe ser un número positivo.');
+        return;
+    }
+
+    const concept = prompt('Ingresa el concepto de la factura (ej. "Cuota de administración"):');
+    if (!concept) {
+        alert('El concepto de la factura no puede estar vacío.');
         return;
     }
 
@@ -517,851 +417,461 @@ autoInvoicesForm.addEventListener('submit', async (e) => {
     try {
         const residentsSnapshot = await db.collection('residents').get();
         const batch = db.batch();
-        
-        const dueDate = new Date(dueDateStr);
-
-        for (const doc of residentsSnapshot.docs) {
-            const resident = doc.data();
+        residentsSnapshot.forEach(doc => {
             const residentId = doc.id;
-            const newBillRef = db.collection('bills').doc();
-            const newBill = {
-                residentId: residentId,
-                dueDate: firebase.firestore.Timestamp.fromDate(dueDate),
+            const newBillRef = db.collection('residents').doc(residentId).collection('bills').doc();
+            const billData = {
+                dueDate: firebase.firestore.Timestamp.fromDate(new Date(dueDate)),
                 amount: amount,
                 concept: concept,
                 status: 'Pendiente',
                 paidAmount: 0,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            batch.set(newBillRef, newBill);
-        }
-        await batch.commit();
-        alert('¡Facturas generadas y enviadas con éxito!');
-        autoInvoicesForm.reset();
-        loadResidents();
-    } catch (err) {
-        console.error("Error generating monthly invoices:", err);
-        alert('Error al generar las facturas mensuales.');
-    } finally {
-        hideSpinner();
-        toggleSection(null);
-    }
-});
-
-
-// Load bill history for a specific resident
-async function showBillHistory(residentId) {
-    showSpinner();
-    billHistoryTableBody.innerHTML = '';
-    try {
-        const residentDoc = await db.collection('residents').doc(residentId).get();
-        const resident = residentDoc.data();
-        modalTitle.textContent = `Facturas de ${resident.name} (Depto: ${resident.depto})`;
-
-        const billsSnapshot = await db.collection('bills').where('residentId', '==', residentId).get();
-
-        const bills = billsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        })).sort((a, b) => {
-            const dateA = a.createdAt ? a.createdAt.seconds : 0;
-            const dateB = b.createdAt ? b.createdAt.seconds : 0;
-            return dateA - dateB;
+            batch.set(newBillRef, billData);
         });
 
-        if (bills.length === 0) {
-            billHistoryTableBody.innerHTML = `<tr><td colspan="8">No se encontraron facturas para este residente.</td></tr>`;
-        } else {
-            bills.forEach(bill => {
-                const row = billHistoryTableBody.insertRow();
-                row.innerHTML = `
-                    <td>${formatDate(bill.dueDate)}</td>
-                    <td>${formatCurrency(bill.amount)}</td>
-                    <td>${formatCurrency(bill.paidAmount || 0)}</td>
-                    <td>${bill.concept}</td>
-                    <td class="status-${bill.status.toLowerCase().replace(' ', '-')}">${bill.status}</td>
-                    <td>${formatDate(bill.paymentDate)}</td>
-                    <td>
-                        <button class="btn secondary-btn edit-bill-btn" data-id="${bill.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn logout-btn delete-bill-btn" data-id="${bill.id}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                    <td>
-                        <button class="btn primary-btn download-receipt-btn" data-id="${bill.id}">
-                            <i class="fas fa-file-download"></i>
-                        </button>
-                    </td>
-                `;
-            });
-        }
-        billHistoryModal.classList.add('active');
-    } catch (err) {
-        console.error("Error loading bills:", err);
-        alert('Error al cargar el historial de facturas.');
+        await batch.commit();
+        alert('Facturas mensuales generadas exitosamente para todos los residentes.');
+        fetchResidents();
+    } catch (error) {
+        console.error("Error al generar facturas:", error);
+        alert('Error al generar las facturas. Por favor, inténtalo de nuevo.');
     } finally {
         hideSpinner();
     }
-}
-
-// CÓDIGO AÑADIDO: Filtro de búsqueda para facturas en el modal de admin
-const billSearchInput = document.createElement('input');
-billSearchInput.type = 'text';
-billSearchInput.id = 'bill-history-search';
-billSearchInput.placeholder = 'Buscar por concepto o estado...';
-billSearchInput.classList.add('search-input');
-const filterControlsDiv = document.querySelector('#bill-history-modal .filter-controls');
-if (filterControlsDiv) {
-    filterControlsDiv.insertBefore(billSearchInput, filterControlsDiv.firstChild);
-}
-
-billSearchInput.addEventListener('input', (e) => {
-    const filterText = e.target.value.toLowerCase();
-    const rows = billHistoryTableBody.querySelectorAll('tr');
-    rows.forEach(row => {
-        const concept = row.cells[3].textContent.toLowerCase();
-        const status = row.cells[4].textContent.toLowerCase();
-        if (concept.includes(filterText) || status.includes(filterText)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
 });
-// --- FIN DEL CÓDIGO AÑADIDO ---
 
-// Load and display ALL paid bills for admin panel
-async function loadAdminPayments() {
+
+// Admin Panel - Payment History
+showAdminPaymentsBtn.addEventListener('click', () => {
+    adminPaymentsSection.classList.toggle('hidden');
+    if (!adminPaymentsSection.classList.contains('hidden')) {
+        fetchAdminPaymentHistory();
+    }
+});
+
+const fetchAdminPaymentHistory = async () => {
     showSpinner();
     adminPaymentsTableBody.innerHTML = '';
     try {
-        const billsSnapshot = await db.collection('bills').get();
-        const paidBills = billsSnapshot.docs.filter(doc => doc.data().status === 'Pagada');
-
-        if (paidBills.length === 0) {
-            adminPaymentsTableBody.innerHTML = `<tr><td colspan="7">No se encontraron pagos registrados.</td></tr>`;
-        } else {
-            for (const doc of paidBills) {
-                const bill = doc.data();
-                const residentDoc = await db.collection('residents').doc(bill.residentId).get();
-                const resident = residentDoc.data();
-
-                const row = adminPaymentsTableBody.insertRow();
-                row.innerHTML = `
-                    <td>${resident.depto} - ${resident.name}</td>
-                    <td>${formatDate(bill.paymentDate)}</td>
-                    <td>${formatCurrency(bill.paidAmount || 0)}</td>
-                    <td>${bill.concept}</td>
-                    <td>${formatDate(bill.dueDate)}</td>
-                    <td>${bill.status}</td>
-                    <td>
-                         <button class="btn primary-btn download-receipt-btn" data-id="${doc.id}">
-                             <i class="fas fa-file-download"></i>
-                         </button>
-                     </td>
-                `;
-            }
+        const payments = [];
+        const residentsSnapshot = await db.collection('residents').get();
+        for (const residentDoc of residentsSnapshot.docs) {
+            const residentData = residentDoc.data();
+            const billsSnapshot = await db.collection('residents').doc(residentDoc.id).collection('bills').where('status', '==', 'Pagada').get();
+            billsSnapshot.forEach(billDoc => {
+                const billData = billDoc.data();
+                payments.push({
+                    residentName: residentData.name,
+                    paymentDate: billData.paidDate ? billData.paidDate.toDate() : null,
+                    amount: billData.paidAmount,
+                    concept: billData.concept,
+                    dueDate: billData.dueDate ? billData.dueDate.toDate() : null,
+                    status: billData.status,
+                    residentId: residentDoc.id
+                });
+            });
         }
-    } catch (err) {
-        console.error("Error loading admin payments:", err);
-        alert('Error al cargar el historial de pagos del administrador.');
+        renderAdminPayments(payments);
+    } catch (error) {
+        console.error("Error al obtener historial de pagos:", error);
     } finally {
         hideSpinner();
     }
-}
+};
 
-// NEW: Add event listener for download button on admin payments table
-adminPaymentsTableBody.addEventListener('click', async (e) => {
-    const downloadBtn = e.target.closest('.download-receipt-btn');
-    if (downloadBtn) {
-        const billId = downloadBtn.dataset.id;
-        showSpinner();
-        try {
-            const billDoc = await db.collection('bills').doc(billId).get();
-            const bill = billDoc.data();
-            const residentDoc = await db.collection('residents').doc(bill.residentId).get();
-            const resident = residentDoc.data();
-
-            let previousBalance = 0;
-            let accumulatedCredit = 0;
-
-            const allBillsSnapshot = await db.collection('bills')
-                .where('residentId', '==', bill.residentId)
-                .get();
-
-            const allBills = allBillsSnapshot.docs.map(doc => ({
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.seconds || 0,
-                id: doc.id
-            }));
-            allBills.sort((a, b) => a.createdAt - b.createdAt);
-
-            const previousBills = allBills.filter(prevBill => prevBill.createdAt < bill.createdAt.seconds);
-
-            previousBills.forEach(prevBill => {
-                const dueDate = prevBill.dueDate ? new Date(prevBill.dueDate.seconds * 1000) : null;
-                const isLate = (prevBill.status === 'Pendiente' && new Date() > dueDate) ||
-                    (prevBill.status === 'Pagada' && prevBill.paymentDate && new Date(prevBill.paymentDate.seconds * 1000) > dueDate);
-                const multa = isLate ? prevBill.amount * 0.015 : 0;
-
-                const unpaidAmount = (prevBill.amount + multa) - (prevBill.paidAmount || 0);
-
-                if (unpaidAmount > 0) {
-                    previousBalance += unpaidAmount;
-                } else if (unpaidAmount < 0) {
-                    accumulatedCredit += Math.abs(unpaidAmount);
-                }
-            });
-
-            // --- Lógica Corregida para cálculo de Saldo Anterior y Saldo a Favor ---
-            const finalPreviousBalance = previousBalance - accumulatedCredit;
-            const saldoAFavorFinal = Math.max(0, -finalPreviousBalance);
-            const saldoAnteriorAjustado = Math.max(0, finalPreviousBalance);
-            // --- Fin Lógica Corregida ---
-
-
-            const dueDate = bill.dueDate ? new Date(bill.dueDate.seconds * 1000) : null;
-            if (dueDate) {
-                dueDate.setHours(0, 0, 0, 0);
-            }
-
-            const isLate = (bill.status === 'Pendiente' && new Date() > dueDate) ||
-                (bill.status === 'Pagada' && bill.paymentDate && new Date(bill.paymentDate.seconds * 1000) > dueDate);
-
-            const multa = isLate ? bill.amount * 0.015 : 0;
-            const totalDueThisMonth = bill.amount + multa;
-            const paidThisMonth = bill.paidAmount || 0;
-
-            // --- Lógica Corregida para calcular el Total a Pagar y el Saldo a Favor final ---
-            const totalOwed = saldoAnteriorAjustado + totalDueThisMonth;
-            const totalPaid = paidThisMonth + saldoAFavorFinal;
-            const finalAmount = Math.max(0, totalOwed - totalPaid);
-            const finalCredit = Math.max(0, totalPaid - totalOwed);
-            // --- Fin Lógica Corregida ---
-
-            const receiptContent = `
-                <div style="font-family: 'Poppins', sans-serif; padding: 20px; color: #333; max-width: 700px; margin: auto; font-size: 12px;">
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 10px;">
-                                <div style="text-align: center;">
-                                    <strong>EDIFICIO BAHÍA ETAPA A</strong><br>
-                                    Nit 901048187-4<br>
-                                    Carrera 65 no. 42-101 Teléfono 3104086837 - Medellín
-                                </div>
-                            </td>
-                            <td style="border: 1px solid #000; padding: 10px; text-align: right;">
-                                <img src="logo bahia a.png" alt="Logo" style="max-height: 50px;">
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>CUENTA DE COBRO No:</strong> <span style="font-size: 14px; font-weight: bold;">${billDoc.id.substring(0, 8)}</span><br>
-                                <strong>REFERENCIA DE PAGO:</strong> <span style="font-size: 14px; font-weight: bold;">${resident.depto}</span>
-                            </td>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>PERIODO DE FACTURACIÓN:</strong><br>
-                                ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
-                                <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 10px;">
-                                APTO: <span style="font-weight: bold;">${resident.depto}</span><br>
-                                COPROPIETARIO: <span style="font-weight: bold;">${resident.name.toUpperCase()}</span>
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr style="background-color: #f2f2f2;">
-                            <th style="padding: 8px; text-align: left; border: 1px solid #000; width: 40%;">CONCEPTO</th>
-                            <th style="padding: 8px; text-align: right; border: 1px solid #000; width: 20%;">SALDO ANT</th>
-                            <th style="padding: 8px; border: 1px solid #000; text-align: right; width: 20%;">ESTE MES</th>
-                            <th style="padding: 8px; border: 1px solid #000; text-align: right; width: 20%;">A PAGAR</th>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">${bill.concept}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(bill.amount)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">INTERESES</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">-</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(multa)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(multa)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">SALDO A FAVOR</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(finalCredit)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">-</td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>PAGADO ESTE MES</strong> <br>${formatCurrency(paidThisMonth)}
-                            </td>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px; text-align: right; background-color: #f2f2f2;">
-                                <strong>TOTAL A PAGAR</strong>
-                                <br><span style="font-size: 14px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" style="border: 1px solid #000; padding: 10px; text-align: center;">
-                                CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
-                                A NOMBRE DE EDIFICIO BAHÍA ETAPA A
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            `;
-            const options = {
-                margin: 10,
-                filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
-                image: {
-                    type: 'jpeg',
-                    quality: 0.98
-                },
-                html2canvas: {
-                    scale: 2
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'portrait'
-                }
-            };
-            html2pdf().from(receiptContent).set(options).save();
-        } catch (err) {
-            console.error("Error generating PDF:", err);
-            alert('Error al generar el recibo.');
-        } finally {
-            hideSpinner();
-        }
+const renderAdminPayments = (payments) => {
+    adminPaymentsTableBody.innerHTML = '';
+    if (payments.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="7" style="text-align: center;">No hay pagos registrados.</td>`;
+        adminPaymentsTableBody.appendChild(tr);
+        return;
     }
-});
+    payments.forEach(payment => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${payment.residentName}</td>
+            <td>${payment.paymentDate ? formatDate(payment.paymentDate) : 'N/A'}</td>
+            <td>${formatCurrency(payment.amount)}</td>
+            <td>${payment.concept}</td>
+            <td>${payment.dueDate ? formatDate(payment.dueDate) : 'N/A'}</td>
+            <td>${payment.status}</td>
+            <td>
+                <button class="btn primary-btn download-receipt-btn" data-resident-id="${payment.residentId}" data-bill-concept="${payment.concept}" data-bill-amount="${payment.amount}" data-bill-date="${payment.dueDate ? payment.dueDate.toISOString() : ''}" data-bill-paid-date="${payment.paymentDate ? payment.paymentDate.toISOString() : ''}">
+                    <i class="fas fa-download"></i>
+                </button>
+            </td>
+        `;
+        adminPaymentsTableBody.appendChild(tr);
+    });
+};
 
-// NEW: Add event listener to edit and delete bills in the modal
-billHistoryTableBody.addEventListener('click', async (e) => {
-    const editBtn = e.target.closest('.edit-bill-btn');
-    const deleteBtn = e.target.closest('.delete-bill-btn');
-    const downloadBtn = e.target.closest('.download-receipt-btn');
-    
-    if (editBtn) {
-        const billId = editBtn.dataset.id;
-        const billDoc = await db.collection('bills').doc(billId).get();
-        if (billDoc.exists) {
-            const bill = billDoc.data();
-            editBillForm['edit-due-date'].value = bill.dueDate.toDate().toISOString().split('T')[0];
-            editBillForm['edit-amount'].value = bill.amount;
-            editBillForm['edit-concept'].value = bill.concept;
-            editBillForm['edit-status'].value = bill.status;
-            editBillForm['edit-payment-date'].value = bill.paymentDate ? bill.paymentDate.toDate().toISOString().split('T')[0] : '';
-            editBillForm['edit-paid-amount'].value = bill.paidAmount || 0;
-            editBillForm.dataset.billId = billId; // Store the ID on the form element
-            document.querySelector('.edit-bill-section').classList.add('active');
+
+// Admin & Resident Panel - Bill History & Modals
+let currentResidentId = null;
+
+const fetchResidentBillsForAdmin = async (residentId) => {
+    showSpinner();
+    currentResidentId = residentId;
+    billHistoryTableBody.innerHTML = '';
+    const modalTitle = document.getElementById('modal-title');
+    try {
+        const residentDoc = await db.collection('residents').doc(residentId).get();
+        if (!residentDoc.exists) {
+            alert('Residente no encontrado.');
+            return;
         }
-    } else if (deleteBtn) {
-        const billId = deleteBtn.dataset.id;
-        if (confirm('¿Estás seguro de que quieres eliminar esta factura?')) {
-            deleteBill(billId);
-        }
-    } else if (downloadBtn) {
-        const billId = downloadBtn.dataset.id;
-        showSpinner();
-        try {
-            const billDoc = await db.collection('bills').doc(billId).get();
-            const bill = billDoc.data();
-            const residentDoc = await db.collection('residents').doc(bill.residentId).get();
-            const resident = residentDoc.data();
-
-            let previousBalance = 0;
-            let accumulatedCredit = 0;
-
-            const allBillsSnapshot = await db.collection('bills')
-                .where('residentId', '==', bill.residentId)
-                .get();
-            const allBills = allBillsSnapshot.docs.map(doc => ({
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.seconds || 0,
-                id: doc.id
-            }));
-            allBills.sort((a, b) => a.createdAt - b.createdAt);
-            const previousBills = allBills.filter(prevBill => prevBill.createdAt < bill.createdAt.seconds);
-
-            previousBills.forEach(prevBill => {
-                const dueDate = prevBill.dueDate ? new Date(prevBill.dueDate.seconds * 1000) : null;
-                const isLate = (prevBill.status === 'Pendiente' && new Date() > dueDate) ||
-                    (prevBill.status === 'Pagada' && prevBill.paymentDate && new Date(prevBill.paymentDate.seconds * 1000) > dueDate);
-                const multa = isLate ? prevBill.amount * 0.015 : 0;
-                const unpaidAmount = (prevBill.amount + multa) - (prevBill.paidAmount || 0);
-                if (unpaidAmount > 0) {
-                    previousBalance += unpaidAmount;
-                } else if (unpaidAmount < 0) {
-                    accumulatedCredit += Math.abs(unpaidAmount);
-                }
-            });
-
-            const finalPreviousBalance = previousBalance - accumulatedCredit;
-            const saldoAFavorFinal = Math.max(0, -finalPreviousBalance);
-            const saldoAnteriorAjustado = Math.max(0, finalPreviousBalance);
-
-            const dueDate = bill.dueDate ? new Date(bill.dueDate.seconds * 1000) : null;
-            if (dueDate) {
-                dueDate.setHours(0, 0, 0, 0);
-            }
-            const isLate = (bill.status === 'Pendiente' && new Date() > dueDate) ||
-                (bill.status === 'Pagada' && bill.paymentDate && new Date(bill.paymentDate.seconds * 1000) > dueDate);
-            const multa = isLate ? bill.amount * 0.015 : 0;
-            const totalDueThisMonth = bill.amount + multa;
-            const paidThisMonth = bill.paidAmount || 0;
-            const totalOwed = saldoAnteriorAjustado + totalDueThisMonth;
-            const totalPaid = paidThisMonth + saldoAFavorFinal;
-            const finalAmount = Math.max(0, totalOwed - totalPaid);
-            const finalCredit = Math.max(0, totalPaid - totalOwed);
-
-            const receiptContent = `
-                <div style="font-family: 'Poppins', sans-serif; padding: 20px; color: #333; max-width: 700px; margin: auto; font-size: 12px;">
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 10px;">
-                                <div style="text-align: center;">
-                                    <strong>EDIFICIO BAHÍA ETAPA A</strong><br>
-                                    Nit 901048187-4<br>
-                                    Carrera 65 no. 42-101 Teléfono 3104086837 - Medellín
-                                </div>
-                            </td>
-                            <td style="border: 1px solid #000; padding: 10px; text-align: right;">
-                                <img src="logo bahia a.png" alt="Logo" style="max-height: 50px;">
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>CUENTA DE COBRO No:</strong> <span style="font-size: 14px; font-weight: bold;">${billDoc.id.substring(0, 8)}</span><br>
-                                <strong>REFERENCIA DE PAGO:</strong> <span style="font-size: 14px; font-weight: bold;">${resident.depto}</span>
-                            </td>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>PERIODO DE FACTURACIÓN:</strong><br>
-                                ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
-                                <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 10px;">
-                                APTO: <span style="font-weight: bold;">${resident.depto}</span><br>
-                                COPROPIETARIO: <span style="font-weight: bold;">${resident.name.toUpperCase()}</span>
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr style="background-color: #f2f2f2;">
-                            <th style="padding: 8px; text-align: left; border: 1px solid #000; width: 40%;">CONCEPTO</th>
-                            <th style="padding: 8px; text-align: right; border: 1px solid #000; width: 20%;">SALDO ANT</th>
-                            <th style="padding: 8px; border: 1px solid #000; text-align: right; width: 20%;">ESTE MES</th>
-                            <th style="padding: 8px; border: 1px solid #000; text-align: right; width: 20%;">A PAGAR</th>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">${bill.concept}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(bill.amount)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">INTERESES</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">-</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(multa)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(multa)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">SALDO A FAVOR</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(finalCredit)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">-</td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>PAGADO ESTE MES</strong> <br>${formatCurrency(paidThisMonth)}
-                            </td>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px; text-align: right; background-color: #f2f2f2;">
-                                <strong>TOTAL A PAGAR</strong>
-                                <br><span style="font-size: 14px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" style="border: 1px solid #000; padding: 10px; text-align: center;">
-                                CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
-                                A NOMBRE DE EDIFICIO BAHÍA ETAPA A
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            `;
-            const options = {
-                margin: 10,
-                filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
-                image: {
-                    type: 'jpeg',
-                    quality: 0.98
-                },
-                html2canvas: {
-                    scale: 2
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'portrait'
-                }
+        const resident = residentDoc.data();
+        modalTitle.textContent = `Historial de Facturas de ${resident.name}`;
+        const billsSnapshot = await db.collection('residents').doc(residentId).collection('bills').orderBy('createdAt', 'desc').get();
+        billsSnapshot.forEach(doc => {
+            const bill = {
+                id: doc.id,
+                ...doc.data()
             };
-            html2pdf().from(receiptContent).set(options).save();
-        } catch (err) {
-            console.error("Error generating PDF:", err);
-            alert('Error al generar el recibo.');
-        } finally {
-            hideSpinner();
-        }
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${bill.dueDate ? formatDate(bill.dueDate.toDate()) : 'N/A'}</td>
+                <td>${formatCurrency(bill.amount)}</td>
+                <td>${formatCurrency(bill.paidAmount)}</td>
+                <td>${bill.concept}</td>
+                <td>${bill.status}</td>
+                <td>${bill.paidDate ? formatDate(bill.paidDate.toDate()) : 'N/A'}</td>
+                <td>
+                    <button class="btn secondary-btn edit-bill-btn" data-id="${bill.id}">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn logout-btn delete-bill-btn" data-id="${bill.id}">
+                        <i class="fas fa-trash-alt"></i> Eliminar
+                    </button>
+                </td>
+                <td>
+                    <button class="btn primary-btn download-receipt-btn" data-resident-id="${residentId}" data-bill-id="${bill.id}">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </td>
+            `;
+            billHistoryTableBody.appendChild(tr);
+        });
+        attachBillHistoryEvents();
+        billHistoryModal.style.display = 'block';
+    } catch (error) {
+        console.error("Error al obtener facturas del residente:", error);
+    } finally {
+        hideSpinner();
     }
-});
+};
 
-// Update an existing bill
+const attachBillHistoryEvents = () => {
+    document.querySelectorAll('.edit-bill-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const billId = e.target.dataset.id;
+            await showEditBillModal(currentResidentId, billId);
+        });
+    });
+    document.querySelectorAll('.delete-bill-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const billId = e.target.dataset.id;
+            if (confirm('¿Estás seguro de que quieres eliminar esta factura?')) {
+                await deleteBill(currentResidentId, billId);
+            }
+        });
+    });
+    document.querySelectorAll('.download-receipt-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const residentId = e.target.dataset.residentId;
+            const billId = e.target.dataset.billId;
+            await generatePdfReceipt(residentId, billId);
+        });
+    });
+};
+
+const showEditBillModal = async (residentId, billId) => {
+    showSpinner();
+    try {
+        const billDoc = await db.collection('residents').doc(residentId).collection('bills').doc(billId).get();
+        if (!billDoc.exists) {
+            alert('Factura no encontrada.');
+            return;
+        }
+        const billData = billDoc.data();
+        document.getElementById('edit-bill-id').value = billId;
+        document.getElementById('edit-bill-due-date').value = billData.dueDate ? billData.dueDate.toDate().toISOString().split('T')[0] : '';
+        document.getElementById('edit-bill-amount').value = billData.amount;
+        document.getElementById('edit-bill-concept').value = billData.concept;
+        document.getElementById('edit-bill-status').value = billData.status;
+        document.getElementById('edit-bill-payment-date').value = billData.paidDate ? billData.paidDate.toDate().toISOString().split('T')[0] : '';
+        document.getElementById('edit-bill-paid-amount').value = billData.paidAmount || 0;
+        editBillModal.style.display = 'block';
+    } catch (error) {
+        console.error("Error al cargar datos de la factura:", error);
+    } finally {
+        hideSpinner();
+    }
+};
+
 editBillForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const billId = editBillForm.dataset.billId;
-    if (!billId) return;
+    const billId = document.getElementById('edit-bill-id').value;
+    const dueDate = document.getElementById('edit-bill-due-date').value;
+    const amount = parseFloat(document.getElementById('edit-bill-amount').value);
+    const concept = document.getElementById('edit-bill-concept').value;
+    const status = document.getElementById('edit-bill-status').value;
+    const paymentDate = document.getElementById('edit-bill-payment-date').value;
+    const paidAmount = parseFloat(document.getElementById('edit-bill-paid-amount').value) || 0;
 
     showSpinner();
     try {
-        const dueDate = editBillForm['edit-due-date'].value;
-        const amount = parseCurrency(editBillForm['edit-amount'].value);
-        const concept = editBillForm['edit-concept'].value;
-        const status = editBillForm['edit-status'].value;
-        const paymentDate = editBillForm['edit-payment-date'].value;
-        const paidAmount = parseCurrency(editBillForm['edit-paid-amount'].value) || 0;
-
-        const localDueDate = new Date(dueDate);
-        const localPaymentDate = paymentDate ? new Date(paymentDate) : null;
-
-        await db.collection('bills').doc(billId).update({
-            dueDate: firebase.firestore.Timestamp.fromDate(localDueDate),
-            amount,
-            concept,
-            status,
-            paymentDate: localPaymentDate ? firebase.firestore.Timestamp.fromDate(localPaymentDate) : null,
+        const billRef = db.collection('residents').doc(currentResidentId).collection('bills').doc(billId);
+        await billRef.update({
+            dueDate: firebase.firestore.Timestamp.fromDate(new Date(dueDate)),
+            amount: amount,
+            concept: concept,
+            status: status,
+            paidDate: paymentDate ? firebase.firestore.Timestamp.fromDate(new Date(paymentDate)) : null,
             paidAmount: paidAmount
         });
         alert('Factura actualizada exitosamente.');
-        document.querySelector('.edit-bill-section').classList.remove('active');
-        showBillHistory(currentResidentId); // Reload the bills for the current resident
-    } catch (err) {
-        console.error("Error updating bill: ", err);
+        editBillModal.style.display = 'none';
+        fetchResidentBillsForAdmin(currentResidentId);
+    } catch (error) {
+        console.error("Error al actualizar la factura:", error);
         alert('Error al actualizar la factura.');
     } finally {
         hideSpinner();
     }
 });
 
-// Cancel edit bill
-document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-    document.querySelector('.edit-bill-section').classList.remove('active');
-});
-
-// Delete a bill
-async function deleteBill(billId) {
+const deleteBill = async (residentId, billId) => {
     showSpinner();
     try {
-        await db.collection('bills').doc(billId).delete();
-        alert('Factura eliminada exitosamente.');
-        showBillHistory(currentResidentId); // Reload the bills for the current resident
-    } catch (err) {
-        console.error("Error deleting bill:", err);
+        await db.collection('residents').doc(residentId).collection('bills').doc(billId).delete();
+        alert('Factura eliminada correctamente.');
+        fetchResidentBillsForAdmin(residentId);
+    } catch (error) {
+        console.error("Error al eliminar la factura:", error);
         alert('Error al eliminar la factura.');
     } finally {
         hideSpinner();
     }
-}
+};
 
-// Close the modal
-document.querySelector('#bill-history-modal .close-btn').addEventListener('click', () => {
-    billHistoryModal.classList.remove('active');
-    document.querySelector('.edit-bill-section').classList.remove('active');
-});
-
-document.querySelector('#change-credentials-modal .close-btn').addEventListener('click', () => {
-    changeCredentialsModal.classList.remove('active');
-});
-
-
-// Change resident credentials
-const changeCredentialsFormResident = document.getElementById('change-credentials-form-resident');
-changeCredentialsFormResident.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const currentPassword = changeCredentialsFormResident['current-password-resident'].value;
-    const newUsername = changeCredentialsFormResident['new-username-resident'].value;
-    const newPassword = changeCredentialsFormResident['new-password-resident'].value;
-    const residentCredentialsError = document.getElementById('resident-credentials-error');
-    const residentCredentialsSuccess = document.getElementById('resident-credentials-success');
-    residentCredentialsError.textContent = '';
-    residentCredentialsSuccess.textContent = '';
-
+// Resident Panel - Bill History & Credential Management
+const fetchResidentBills = async (userId) => {
     showSpinner();
+    residentBillsTableBody.innerHTML = '';
     try {
-        const residentDoc = await db.collection('residents').doc(currentResidentId).get();
-        if (residentDoc.exists) {
-            const resident = residentDoc.data();
-            if (resident.password === currentPassword) {
-                await db.collection('residents').doc(currentResidentId).update({
-                    username: newUsername,
-                    password: newPassword,
-                    credentialsChanged: true
-                });
-                residentCredentialsSuccess.textContent = 'Credenciales actualizadas exitosamente.';
-                changeCredentialsFormResident.reset();
-            } else {
-                residentCredentialsError.textContent = 'La contraseña actual es incorrecta.';
-            }
+        const residentDoc = await db.collection('residents').doc(userId).get();
+        if (!residentDoc.exists) {
+            alert('Tus datos no se encontraron en la base de datos.');
+            return;
         }
-    } catch (err) {
-        console.error("Error changing resident credentials:", err);
-        residentCredentialsError.textContent = 'Error al actualizar credenciales.';
-    } finally {
-        hideSpinner();
-    }
-});
-
-
-// Change admin credentials
-changeCredentialsForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const oldPassword = changeCredentialsForm['old-password'].value;
-    const newUsername = changeCredentialsForm['new-username'].value;
-    const newPassword = changeCredentialsForm['new-password'].value;
-
-    credentialsError.textContent = '';
-    credentialsSuccess.textContent = '';
-
-    if (oldPassword === 'admin123' && newUsername && newPassword) {
-        try {
-            await auth.signInWithEmailAndPassword('admin@edificio.com', oldPassword);
-            const user = auth.currentUser;
-            if (user) {
-                await user.updatePassword(newPassword);
-                // Note: Firestore update is not necessary for a simple password change
-                // but we can simulate updating admin details if needed
-                credentialsSuccess.textContent = 'Credenciales de administrador actualizadas exitosamente.';
-                changeCredentialsForm.reset();
-            }
-        } catch (err) {
-            console.error("Error updating admin password:", err);
-            credentialsError.textContent = 'La contraseña actual es incorrecta o la nueva no es válida.';
-        }
-    } else {
-        credentialsError.textContent = 'Datos incompletos o contraseña actual incorrecta.';
-    }
-});
-
-
-// Load all bills for admin panel (main table)
-async function loadAllBills() {
-    showSpinner();
-    const billListTableBody = document.getElementById('bill-list-table-body');
-    billListTableBody.innerHTML = '';
-    try {
-        const billsSnapshot = await db.collection('bills').get();
-        for (const doc of billsSnapshot.docs) {
+        const billsSnapshot = await db.collection('residents').doc(userId).collection('bills').orderBy('createdAt', 'desc').get();
+        billsSnapshot.forEach(doc => {
             const bill = doc.data();
-            const residentDoc = await db.collection('residents').doc(bill.residentId).get();
-            const resident = residentDoc.data() || { name: 'Desconocido' };
-            const row = billListTableBody.insertRow();
-            row.innerHTML = `
-                <td>${bill.residentId}</td>
-                <td>${formatDate(bill.dueDate)}</td>
-                <td>${formatCurrency(bill.amount)}</td>
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
                 <td>${bill.concept}</td>
-                <td class="status-${bill.status.toLowerCase().replace(' ', '-')}">${bill.status}</td>
-                <td>${formatDate(bill.createdAt)}</td>
+                <td>${formatCurrency(bill.amount)}</td>
+                <td>${formatCurrency(bill.paidAmount)}</td>
+                <td>${bill.dueDate ? formatDate(bill.dueDate.toDate()) : 'N/A'}</td>
+                <td>${bill.paidDate ? formatDate(bill.paidDate.toDate()) : 'N/A'}</td>
+                <td>${bill.status}</td>
                 <td>
-                    <button class="btn secondary-btn edit-bill-btn" data-id="${doc.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn logout-btn delete-bill-btn" data-id="${doc.id}">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                    <button class="btn primary-btn download-receipt-btn" data-id="${doc.id}">
-                        <i class="fas fa-file-download"></i>
+                    <button class="btn secondary-btn mark-paid-btn" data-id="${doc.id}">
+                        <i class="fas fa-check-circle"></i> Marcar como Pagada
                     </button>
                 </td>
             `;
-        }
-    } catch (err) {
-        console.error("Error loading all bills:", err);
-        alert('Error al cargar el listado de facturas.');
+            residentBillsTableBody.appendChild(tr);
+        });
+        attachResidentBillEvents(userId);
+    } catch (error) {
+        console.error("Error al obtener facturas del residente:", error);
     } finally {
         hideSpinner();
     }
-}
+};
 
-// Attach listeners for the main bill table actions
-document.getElementById('bill-list-table-body').addEventListener('click', async (e) => {
-    const editBtn = e.target.closest('.edit-bill-btn');
-    const deleteBtn = e.target.closest('.delete-bill-btn');
-    const downloadBtn = e.target.closest('.download-receipt-btn');
-
-    if (editBtn) {
-        const billId = editBtn.dataset.id;
-        const billDoc = await db.collection('bills').doc(billId).get();
-        if (billDoc.exists) {
-            const bill = billDoc.data();
-            editBillForm['edit-due-date'].value = bill.dueDate.toDate().toISOString().split('T')[0];
-            editBillForm['edit-amount'].value = bill.amount;
-            editBillForm['edit-concept'].value = bill.concept;
-            editBillForm['edit-status'].value = bill.status;
-            editBillForm['edit-payment-date'].value = bill.paymentDate ? bill.paymentDate.toDate().toISOString().split('T')[0] : '';
-            editBillForm['edit-paid-amount'].value = bill.paidAmount || 0;
-            editBillForm.dataset.billId = billId;
-            document.querySelector('.edit-bill-section').classList.add('active');
-            billHistoryModal.classList.add('active');
-            modalTitle.textContent = "Editar Factura";
-        }
-    } else if (deleteBtn) {
-        const billId = deleteBtn.dataset.id;
-        if (confirm('¿Estás seguro de que quieres eliminar esta factura?')) {
-            await deleteBill(billId);
-            loadAllBills();
-        }
-    } else if (downloadBtn) {
-        const billId = downloadBtn.dataset.id;
-        showSpinner();
-        try {
-            const billDoc = await db.collection('bills').doc(billId).get();
-            const bill = billDoc.data();
-            const residentDoc = await db.collection('residents').doc(bill.residentId).get();
-            const resident = residentDoc.data();
-            
-            let previousBalance = 0;
-            let accumulatedCredit = 0;
-            const allBillsSnapshot = await db.collection('bills')
-                .where('residentId', '==', bill.residentId)
-                .get();
-            const allBills = allBillsSnapshot.docs.map(doc => ({
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.seconds || 0,
-                id: doc.id
-            }));
-            allBills.sort((a, b) => a.createdAt - b.createdAt);
-            const previousBills = allBills.filter(prevBill => prevBill.createdAt < bill.createdAt.seconds);
-            previousBills.forEach(prevBill => {
-                const dueDate = prevBill.dueDate ? new Date(prevBill.dueDate.seconds * 1000) : null;
-                const isLate = (prevBill.status === 'Pendiente' && new Date() > dueDate) ||
-                    (prevBill.status === 'Pagada' && prevBill.paymentDate && new Date(prevBill.paymentDate.seconds * 1000) > dueDate);
-                const multa = isLate ? prevBill.amount * 0.015 : 0;
-                const unpaidAmount = (prevBill.amount + multa) - (prevBill.paidAmount || 0);
-                if (unpaidAmount > 0) {
-                    previousBalance += unpaidAmount;
-                } else if (unpaidAmount < 0) {
-                    accumulatedCredit += Math.abs(unpaidAmount);
-                }
-            });
-            const finalPreviousBalance = previousBalance - accumulatedCredit;
-            const saldoAFavorFinal = Math.max(0, -finalPreviousBalance);
-            const saldoAnteriorAjustado = Math.max(0, finalPreviousBalance);
-            const dueDate = bill.dueDate ? new Date(bill.dueDate.seconds * 1000) : null;
-            if (dueDate) {
-                dueDate.setHours(0, 0, 0, 0);
+const attachResidentBillEvents = (userId) => {
+    document.querySelectorAll('.mark-paid-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const billId = e.target.dataset.id;
+            const paidAmount = parseFloat(prompt('¿Cuánto pagaste?'));
+            if (isNaN(paidAmount) || paidAmount <= 0) {
+                alert('Monto de pago no válido.');
+                return;
             }
-            const isLate = (bill.status === 'Pendiente' && new Date() > dueDate) ||
-                (bill.status === 'Pagada' && bill.paymentDate && new Date(bill.paymentDate.seconds * 1000) > dueDate);
-            const multa = isLate ? bill.amount * 0.015 : 0;
-            const totalDueThisMonth = bill.amount + multa;
-            const paidThisMonth = bill.paidAmount || 0;
-            const totalOwed = saldoAnteriorAjustado + totalDueThisMonth;
-            const totalPaid = paidThisMonth + saldoAFavorFinal;
-            const finalAmount = Math.max(0, totalOwed - totalPaid);
-            const finalCredit = Math.max(0, totalPaid - totalOwed);
+            if (confirm('¿Estás seguro de que quieres marcar esta factura como pagada?')) {
+                showSpinner();
+                try {
+                    const billRef = db.collection('residents').doc(userId).collection('bills').doc(billId);
+                    await billRef.update({
+                        status: 'Pagada',
+                        paidDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        paidAmount: paidAmount
+                    });
+                    alert('Factura marcada como pagada.');
+                    fetchResidentBills(userId);
+                } catch (error) {
+                    console.error("Error al marcar factura como pagada:", error);
+                    alert('Error al marcar la factura como pagada.');
+                } finally {
+                    hideSpinner();
+                }
+            }
+        });
+    });
+};
 
-            const receiptContent = `
-                <div style="font-family: 'Poppins', sans-serif; padding: 20px; color: #333; max-width: 700px; margin: auto; font-size: 12px;">
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+
+showChangePasswordFormBtn.addEventListener('click', () => {
+    changeCredentialsForm.classList.toggle('hidden');
+});
+
+changeCredentialsFormInner.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const oldUsername = document.getElementById('old-username').value;
+    const oldPassword = document.getElementById('old-password').value;
+    const newUsername = document.getElementById('new-username').value;
+    const newPassword = document.getElementById('new-password').value;
+    const credentialsError = document.getElementById('credentials-error');
+    const credentialsSuccess = document.getElementById('credentials-success');
+    credentialsError.textContent = '';
+    credentialsSuccess.textContent = '';
+
+    showSpinner();
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('No hay usuario autenticado.');
+        }
+
+        const credential = firebase.auth.EmailAuthProvider.credential(oldUsername, oldPassword);
+        await user.reauthenticateWithCredential(credential);
+
+        if (newUsername !== oldUsername) {
+            await user.updateEmail(newUsername);
+        }
+        await user.updatePassword(newPassword);
+
+        const residentDocRef = db.collection('residents').doc(user.uid);
+        await residentDocRef.update({
+            username: newUsername
+        });
+
+        showMessage(credentialsSuccess, 'Credenciales actualizadas exitosamente.', 'success');
+        changeCredentialsFormInner.reset();
+        changeCredentialsForm.classList.add('hidden');
+    } catch (error) {
+        console.error("Error al cambiar credenciales:", error);
+        let errorMessage = 'Error al actualizar credenciales.';
+        if (error.code === 'auth/wrong-password') {
+            errorMessage = 'La contraseña actual es incorrecta.';
+        } else if (error.code === 'auth/email-already-in-use') {
+            errorMessage = 'El nuevo usuario (correo) ya está en uso.';
+        }
+        showMessage(credentialsError, errorMessage, 'error');
+    } finally {
+        hideSpinner();
+    }
+});
+
+
+// Modal events
+modalCloseBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        billHistoryModal.style.display = 'none';
+        editBillModal.style.display = 'none';
+    });
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target === billHistoryModal) {
+        billHistoryModal.style.display = 'none';
+    }
+    if (event.target === editBillModal) {
+        editBillModal.style.display = 'none';
+    }
+});
+
+// PDF Generation
+const generatePdfReceipt = async (residentId, billId) => {
+    showSpinner();
+    try {
+        const residentDoc = await db.collection('residents').doc(residentId).get();
+        if (!residentDoc.exists) {
+            throw new Error('Residente no encontrado.');
+        }
+        const resident = residentDoc.data();
+
+        const billDoc = await db.collection('residents').doc(residentId).collection('bills').doc(billId).get();
+        if (!billDoc.exists) {
+            throw new Error('Factura no encontrada.');
+        }
+        const bill = billDoc.data();
+        const finalAmount = bill.paidAmount !== undefined ? bill.paidAmount : bill.amount;
+
+        const receiptContent = `
+                <div style="font-family: 'Poppins', sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #000; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="logo bahia a.png" alt="Logo" style="height: 80px;">
+                        <h1 style="color: #333; margin: 10px 0;">Edificio Bahía A</h1>
+                        <p style="color: #666; font-size: 14px;">RECIBO DE PAGO</p>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-size: 14px;"><strong>Fecha de Emisión:</strong> ${formatDate(new Date())}</p>
+                        <p style="font-size: 14px;"><strong>No. Recibo:</strong> ${billId}</p>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                         <tr>
-                            <td style="border: 1px solid #000; padding: 10px;">
-                                <div style="text-align: center;">
-                                    <strong>EDIFICIO BAHÍA ETAPA A</strong><br>
-                                    Nit 901048187-4<br>
-                                    Carrera 65 no. 42-101 Teléfono 3104086837 - Medellín
-                                </div>
-                            </td>
-                            <td style="border: 1px solid #000; padding: 10px; text-align: right;">
-                                <img src="logo bahia a.png" alt="Logo" style="max-height: 50px;">
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>CUENTA DE COBRO No:</strong> <span style="font-size: 14px; font-weight: bold;">${billDoc.id.substring(0, 8)}</span><br>
-                                <strong>REFERENCIA DE PAGO:</strong> <span style="font-size: 14px; font-weight: bold;">${resident.depto}</span>
-                            </td>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>PERIODO DE FACTURACIÓN:</strong><br>
-                                ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
-                                <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 10px;">
-                                APTO: <span style="font-weight: bold;">${resident.depto}</span><br>
-                                COPROPIETARIO: <span style="font-weight: bold;">${resident.name.toUpperCase()}</span>
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                        <tr style="background-color: #f2f2f2;">
-                            <th style="padding: 8px; text-align: left; border: 1px solid #000; width: 40%;">CONCEPTO</th>
-                            <th style="padding: 8px; text-align: right; border: 1px solid #000; width: 20%;">SALDO ANT</th>
-                            <th style="padding: 8px; border: 1px solid #000; text-align: right; width: 20%;">ESTE MES</th>
-                            <th style="padding: 8px; border: 1px solid #000; text-align: right; width: 20%;">A PAGAR</th>
+                            <td style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;"><strong>Residente:</strong></td>
+                            <td style="border: 1px solid #000; padding: 10px;">${resident.name}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">${bill.concept}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(bill.amount)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
+                            <td style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;"><strong>Departamento:</strong></td>
+                            <td style="border: 1px solid #000; padding: 10px;">${resident.depto}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">INTERESES</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">-</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(multa)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(multa)}</td>
+                            <td style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;"><strong>Concepto:</strong></td>
+                            <td style="border: 1px solid #000; padding: 10px;">${bill.concept}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #000;">SALDO A FAVOR</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">${formatCurrency(finalCredit)}</td>
-                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">-</td>
+                            <td style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;"><strong>Fecha de Vencimiento:</strong></td>
+                            <td style="border: 1px solid #000; padding: 10px;">${bill.dueDate ? formatDate(bill.dueDate.toDate()) : 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;"><strong>Estado:</strong></td>
+                            <td style="border: 1px solid #000; padding: 10px;">${bill.status}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;"><strong>Fecha de Pago:</strong></td>
+                            <td style="border: 1px solid #000; padding: 10px;">${bill.paidDate ? formatDate(bill.paidDate.toDate()) : 'N/A'}</td>
                         </tr>
                     </table>
                     <table style="width: 100%; border-collapse: collapse;">
                         <tr>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px;">
-                                <strong>PAGADO ESTE MES</strong> <br>${formatCurrency(paidThisMonth)}
+                            <td style="border: 1px solid #000; padding: 10px; text-align: left; background-color: #f2f2f2;">
+                                <strong>Monto de la Factura</strong>
                             </td>
-                            <td style="width: 50%; border: 1px solid #000; padding: 10px; text-align: right; background-color: #f2f2f2;">
+                            <td style="border: 1px solid #000; padding: 10px; text-align: right;">
+                                ${formatCurrency(bill.amount)}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 10px; text-align: left; background-color: #f2f2f2;">
+                                <strong>Monto Recibido</strong>
+                            </td>
+                            <td style="border: 1px solid #000; padding: 10px; text-align: right;">
+                                ${formatCurrency(finalAmount)}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 10px; text-align: right; background-color: #f2f2f2;\">
                                 <strong>TOTAL A PAGAR</strong>
-                                <br><span style="font-size: 14px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
+                                <br><span style=\"font-size: 14px; font-weight: bold;\">${formatCurrency(finalAmount)}</span>
                             </td>
                         </tr>
                         <tr>
@@ -1373,28 +883,28 @@ document.getElementById('bill-list-table-body').addEventListener('click', async 
                     </table>
                 </div>
             `;
-            const options = {
-                margin: 10,
-                filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
-                image: {
-                    type: 'jpeg',
-                    quality: 0.98
-                },
-                html2canvas: {
-                    scale: 2
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'portrait'
-                }
-            };
-            html2pdf().from(receiptContent).set(options).save();
-        } catch (err) {
-            console.error("Error generating PDF:", err);
-            alert('Error al generar el recibo.');
-        } finally {
-            hideSpinner();
-        }
+        const options = {
+            margin: 10,
+            filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
+            image: {
+                type: 'jpeg',
+                quality: 0.98
+            },
+            html2canvas: {
+                scale: 2
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            }
+        };
+        html2pdf().from(receiptContent).set(options).save();
+    } catch (err) {
+        console.error("Error generating PDF:", err);
+        alert('Error al generar el recibo.');
+    } finally {
+        hideSpinner();
     }
+}
 });
