@@ -29,169 +29,307 @@
                     <label for="password-login">Contraseña</label>
                     <input type="password" id="password-login" required>
                 </div>
-                <button type="submit" class="btn primary-btn">Entrar</button>
-                <p id="login-error" class="error-message"></p>
+                <button type="submit" class="btn primary-btn">Ingresar</button>
             </form>
+            <p id="login-error" class="error-message"></p>
         </div>
     </div>
 
     <div id="admin-panel" class="page">
         <header>
-            <h1>Gestión de Edificio Bahia-A</h1>
-            <button id="logout-btn" class="btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+            <div class="header-content">
+                <h1 class="logo-text">
+                    <img src="logo bahia a.png" alt="Logo de Edificio Bahia-A" class="logo-image">
+                    Panel de Administración
+                </h1>
+                <div class="user-info">
+                    <span id="admin-welcome">Bienvenido, Admin</span>
+                    <button id="logout-btn" class="btn logout-btn"><i class="fas fa-sign-out-alt"></i> Salir</button>
+                </div>
+            </div>
         </header>
-        <nav>
-            <ul class="nav-menu">
-                <li class="nav-item active" data-target="dashboard-section"><i class="fas fa-tachometer-alt"></i> Dashboard</li>
-                <li class="nav-item" data-target="resident-section"><i class="fas fa-users"></i> Residentes</li>
-                <li class="nav-item" data-target="bill-section"><i class="fas fa-file-invoice"></i> Facturas</li>
-                <li class="nav-item" data-target="report-section"><i class="fas fa-chart-line"></i> Reportes</li>
-                <li class="nav-item" data-target="settings-section"><i class="fas fa-cog"></i> Configuración</li>
-            </ul>
-        </nav>
-        <main>
-            <section id="dashboard-section" class="content-section active">
-                <h2>Dashboard <span id="admin-welcome"></span></h2>
-                <div class="dashboard-grid">
-                    <div class="dashboard-card">
-                        <h3>Total Residentes</h3>
-                        <p id="total-residents-count">0</p>
-                    </div>
-                    <div class="dashboard-card">
-                        <h3>Facturas Pendientes</h3>
-                        <p id="pending-bills-count">0</p>
-                    </div>
-                    <div class="dashboard-card">
-                        <h3>Total Recaudado (mes)</h3>
-                        <p id="monthly-revenue">$0</p>
-                    </div>
-                </div>
-            </section>
 
-            <section id="resident-section" class="content-section">
-                <h2>Residentes</h2>
-                <button id="show-resident-form-btn" class="btn primary-btn"><i class="fas fa-plus"></i> Añadir Residente</button>
-                <form id="resident-form" class="hidden">
-                    <h3>Añadir Nuevo Residente</h3>
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="resident-name">Nombre</label>
-                            <input type="text" id="resident-name" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="resident-email">Correo Electrónico</label>
-                            <input type="email" id="resident-email">
-                        </div>
-                        <div class="input-group">
-                            <label for="resident-depto">No. Apartamento</label>
-                            <input type="text" id="resident-depto" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="resident-phone">Teléfono</label>
-                            <input type="tel" id="resident-phone">
-                        </div>
-                        <div class="input-group">
-                            <label for="resident-parking">Parqueadero</label>
-                            <input type="text" id="resident-parking">
-                        </div>
-                        <div class="input-group">
-                            <label for="resident-status">Estado</label>
-                            <select id="resident-status">
-                                <option value="Activo">Activo</option>
-                                <option value="Inactivo">Inactivo</option>
-                            </select>
-                        </div>
+        <div class="panel-container">
+            <div id="admin-dashboard">
+                <section class="admin-section">
+                    <h2 class="section-title"><i class="fas fa-users-cog"></i> Gestión de Residentes</h2>
+                    <div class="action-buttons">
+                        <button id="show-add-resident-btn" class="btn primary-btn"><i class="fas fa-user-plus"></i> Agregar manualmente</button>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn primary-btn"><i class="fas fa-save"></i> Guardar Residente</button>
-                        <button type="button" class="btn cancel-btn" id="cancel-resident-form"><i class="fas fa-times"></i> Cancelar</button>
-                    </div>
-                    <p id="resident-error" class="error-message"></p>
-                </form>
-                <div class="table-container">
-                    <input type="text" id="search-resident" placeholder="Buscar residentes por nombre o apartamento..." class="search-input">
-                    <table id="residents-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>No. Apartamento</th>
-                                <th>Correo</th>
-                                <th>Teléfono</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
 
-            <section id="bill-section" class="content-section">
-                <h2>Facturas</h2>
-                <button id="show-bill-form-btn" class="btn primary-btn"><i class="fas fa-plus"></i> Añadir Factura</button>
+                    <div id="add-resident-form" class="form-section hidden">
+                        <h3>Agregar Nuevo Residente</h3>
+                        <form id="resident-form">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="resident-id">ID Residente</label>
+                                    <input type="text" id="resident-id" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="resident-name">Nombre</label>
+                                    <input type="text" id="resident-name" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="resident-depto">Departamento</label>
+                                    <input type="text" id="resident-depto" required>
+                                </div>
+                             <div class="input-group">
+                                <label for="resident-email">Correo Electrónico</label>
+                                <input type="email" id="resident-email" required>
+                            </div>
+                        </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="resident-username">Usuario (Inicial)</label>
+                                    <input type="text" id="resident-username" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="resident-password">Contraseña (Inicial)</label>
+                                    <input type="password" id="resident-password" required>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn primary-btn">Crear Residente</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
                 
-                <div class="auto-invoice-section">
-                    <h3>Generación Automática de Facturas</h3>
-                    <button id="generate-monthly-invoices-btn" class="btn primary-btn"><i class="fas fa-cogs"></i> Generar Facturas Mensuales</button>
+                <section class="admin-section">
+                    <h2 class="section-title"><i class="fas fa-file-invoice-dollar"></i> Cargar Facturas</h2>
+                    <div class="action-buttons">
+                        <button id="show-upload-bills-btn" class="btn primary-btn"><i class="fas fa-upload"></i> Cargar por Excel</button>
+                        <button id="show-add-bill-btn" class="btn primary-btn"><i class="fas fa-plus-circle"></i> Agregar Manualmente</button>
+                        <button type="button" class="btn primary-btn" id="generate-monthly-invoices-btn">Facturas automáticas</button>
+                    </div>
+
+                    <div id="upload-bills-section" class="form-section hidden">
+                        <h3>Cargar Facturas por Excel</h3>
+                        <input type="file" id="excel-file" accept=".xlsx, .xls">
+                        <p class="instruction-text">
+                            Asegúrate de que tu archivo Excel tenga las siguientes columnas en la primera fila: 
+                            <br>
+                            **id_residente, fecha_vencimiento, monto, estado, concepto, fecha_pago**
+                        </p>
+                    </div>
+                    
+                    <div id="add-bill-form" class="form-section hidden">
+                        <h3>Agregar Factura Manualmente</h3>
+                        <form id="bill-form">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="bill-resident-id">ID Residente</label>
+                                    <input type="text" id="bill-resident-id" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="bill-due-date">Fecha de Vencimiento</label>
+                                    <input type="date" id="bill-due-date" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="bill-amount">Monto ($)</label>
+                                    <input type="number" id="bill-amount" step="0.01" required>
+                                </div>
+                
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="bill-concept">Concepto</label>
+                                    <input type="text" id="bill-concept" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="bill-status">Estado</label>
+                                    <select id="bill-status" required>
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="Pagada">Pagada</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label for="bill-payment-date">Fecha de Pago</label>
+                                    <input type="date" id="bill-payment-date">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                <label for="bill-paid-amount">Cuánto pagó</label>
+                <input type="number" id="bill-paid-amount" step="any" min="0" placeholder="Opcional">
+            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn primary-btn">Agregar Factura</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                
+                <section class="admin-section">
+                    <h2 class="section-title"><i class="fas fa-list-alt"></i> Facturas y Residentes</h2>
+                    <div class="table-container">
+                        <input type="text" id="resident-search" class="search-input" placeholder="Buscar por ID, nombre o departamento...">
+                        <table id="residents-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Departamento</th>
+                                    <th>Usuario</th>
+                                    <th>Acciones</th>
+                                    <th>Descarga los recibos en "Ver facturas"</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                                                                                <tr>
+                                    <td>Apto_101</td>
+                                    <td>Juan Pérez</td>
+                                    <td>101</td>
+                                    <td>juanperez</td>
+                                    <td>
+                                        <button class="btn primary-btn view-bills-btn" data-id="Apto_101">
+                                            <i class="fas fa-eye"></i> Ver Facturas
+                                        </button>
+                                        <button class="btn logout-btn delete-resident-btn" data-id="Apto_101">
+                                            <i class="fas fa-trash-alt"></i> Eliminar
+                                        </button>
+                                                                                                        <button class="btn secondary-btn send-email-btn" data-id="Apto_101">
+                                            <i class="fas fa-envelope"></i> Enviar Correo
+                                        </button>
+                                                                                                    </td>
+                                    <td>Descarga los recibos en "Ver facturas"</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <section class="admin-section">
+                    <h2 class="section-title"><i class="fas fa-history"></i> Historial de Pagos</h2>
+                    <div class="action-buttons">
+                        <button id="show-admin-payments-btn" class="btn secondary-btn"><i class="fas fa-eye"></i> Ver historial de pagos</button>
+                    </div>
+                
+                    <div id="admin-payments-section" class="table-container hidden">
+                        <div class="filter-controls">
+                
+                </div>
+                        
+                        <table id="admin-payments-table">
+                            <thead>
+                                <tr>
+                                    <th>Residente</th>
+                                    <th>Fecha de Pago</th>
+                                    <th>Monto Pagado</th>
+                                    <th>Concepto</th>
+                                    <th>Fecha Vencimiento</th>
+                                    <th>Estado</th>
+                                    <th>Descargar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-payments-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div id="bill-history-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <h3 id="modal-title">Historial de Facturas</h3>
+                        <div class="modal-body">
+                            <div class="filter-controls">
+                </div>
+<table id="bill-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha Venc.</th>
+                                        <th>Monto</th>
+                                        <th>Valor pagado</th>
+                                        <th>Concepto</th>
+                                        <th>Estado</th>
+                                        <th>Fecha de pago</th>
+                                        <th>Acciones</th>
+                                        <th>Descargar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
-                <form id="bill-form" class="hidden">
-                    <h3>Añadir Nueva Factura</h3>
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="bill-resident-id">Residente</label>
-                            <select id="bill-resident-id" required></select>
-                        </div>
-                        <div class="input-group">
-                            <label for="bill-due-date">Fecha de Vencimiento</label>
-                            <input type="date" id="bill-due-date" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="bill-amount">Monto</label>
-                            <input type="number" id="bill-amount" step="0.01" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="bill-concept">Concepto</label>
-                            <input type="text" id="bill-concept" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="bill-status">Estado</label>
-                            <select id="bill-status">
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="Pagado">Pagado</option>
-                            </select>
-                        </div>
+                <div id="edit-bill-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <h3>Editar Factura</h3>
+                        <form id="edit-bill-form">
+                            <div class="form-row">
+                                <input type="hidden" id="edit-bill-id">
+                                <div class="input-group">
+                                    <label for="edit-bill-due-date">Fecha de Vencimiento</label>
+                                    <input type="date" id="edit-bill-due-date" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="edit-bill-amount">Monto ($)</label>
+                                    <input type="number" id="edit-bill-amount" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                <label for="edit-bill-paid-amount">Cuánto pagó</label>
+                <input type="number" id="edit-bill-paid-amount" step="any" min="0" placeholder="Opcional">
+            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="edit-bill-concept">Concepto</label>
+                                    <input type="text" id="edit-bill-concept" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="edit-bill-status">Estado</label>
+                                    <select id="edit-bill-status" required>
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="Pagada">Pagada</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="edit-bill-payment-date">Fecha de Pago</label>
+                                    <input type="date" id="edit-bill-payment-date">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn primary-btn">Guardar Cambios</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn primary-btn"><i class="fas fa-save"></i> Guardar Factura</button>
-                        <button type="button" class="btn cancel-btn" id="cancel-bill-form"><i class="fas fa-times"></i> Cancelar</button>
-                    </div>
-                    <p id="bill-error" class="error-message"></p>
-                </form>
-                <button id="show-bulk-bill-form-btn" class="btn secondary-btn"><i class="fas fa-upload"></i> Carga Masiva (Excel)</button>
-                <form id="bulk-bill-form" class="hidden">
-                    <h3>Carga Masiva de Facturas (Excel)</h3>
-                    <div class="input-group">
-                        <label for="bulk-bill-file">Seleccionar Archivo Excel</label>
-                        <input type="file" id="bulk-bill-file" accept=".xlsx, .xls" required>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn primary-btn"><i class="fas fa-upload"></i> Subir y Cargar</button>
-                        <button type="button" class="btn cancel-btn" id="cancel-bulk-bill-form"><i class="fas fa-times"></i> Cancelar</button>
-                    </div>
-                    <p id="bulk-bill-message" class="info-message"></p>
-                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resident-panel" class="page">
+        <header>
+            <div class="header-content">
+                <h1 class="logo-text">
+                    <img src="logo bahia a.png" alt="Logo de Edificio Bahia-A" class="logo-image">
+                    Panel de Residente
+                </h1>
+                <div class="user-info">
+                    <span id="resident-welcome"></span>
+                    <button id="resident-logout-btn" class="btn logout-btn"><i class="fas fa-sign-out-alt"></i> Salir</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="panel-container">
+            <section class="resident-section">
+                <h2 class="section-title"><i class="fas fa-file-invoice"></i> Mis Facturas</h2>
                 <div class="table-container">
-                    <input type="text" id="search-bill" placeholder="Buscar facturas por residente, concepto o estado..." class="search-input">
-                    <table id="bills-table">
+                    <div class="filter-controls">
+                </div>
+                    <table id="resident-bills-table">
                         <thead>
                             <tr>
-                                <th>Residente</th>
-                                <th>No. Apartamento</th>
-                                <th>Fecha Vencimiento</th>
-                                <th>Monto</th>
                                 <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Monto recibido</th>
+                                <th>Fecha Vencimiento</th>
+                                <th>Fecha de pago</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -201,52 +339,12 @@
                     </table>
                 </div>
             </section>
-
-            <section id="report-section" class="content-section">
-                <h2>Reportes Financieros</h2>
-                <div class="report-filters">
-                    <div class="input-group">
-                        <label for="report-start-date">Fecha Inicio</label>
-                        <input type="date" id="report-start-date">
-                    </div>
-                    <div class="input-group">
-                        <label for="report-end-date">Fecha Fin</label>
-                        <input type="date" id="report-end-date">
-                    </div>
-                    <div class="input-group">
-                        <label for="report-status">Estado</label>
-                        <select id="report-status">
-                            <option value="todos">Todos</option>
-                            <option value="Pagado">Pagado</option>
-                            <option value="Pendiente">Pendiente</option>
-                        </select>
-                    </div>
-                    <button id="generate-report-btn" class="btn primary-btn"><i class="fas fa-file-pdf"></i> Generar Reporte</button>
-                </div>
-                <div class="report-summary-cards">
-                    <div class="report-card">
-                        <h3>Facturas Pendientes</h3>
-                        <p id="report-pending-count">0</p>
-                        <p id="report-pending-total">$0</p>
-                    </div>
-                    <div class="report-card">
-                        <h3>Facturas Pagadas</h3>
-                        <p id="report-paid-count">0</p>
-                        <p id="report-paid-total">$0</p>
-                    </div>
-                    <div class="report-card">
-                        <h3>Total Facturado</h3>
-                        <p id="report-total-count">0</p>
-                        <p id="report-total-amount">$0</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="settings-section" class="content-section">
-                <h2>Configuración</h2>
-                <div class="settings-group">
-                    <h3>Cambiar Credenciales de Acceso</h3>
-                    <form id="credentials-form">
+            <section class="resident-section">
+                <h2 class="section-title"><i class="fas fa-key"></i> Gestionar Credenciales</h2>
+                <button id="show-change-password-form" class="btn primary-btn"><i class="fas fa-edit"></i> Cambiar Usuario y Contraseña</button>
+                <div id="change-credentials-form" class="hidden">
+                    <h3>Cambiar Usuario y Contraseña</h3>
+                    <form id="change-credentials-form-inner">
                         <div class="input-group">
                             <label for="old-username">Usuario Actual</label>
                             <input type="text" id="old-username" required>
@@ -272,44 +370,6 @@
                 </div>
             </section>
         </div>
-    </div>
-
-    <div id="resident-panel" class="page">
-        <header>
-            <h1 id="resident-welcome">Bienvenido</h1>
-            <button id="resident-logout-btn" class="btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
-        </header>
-        <main>
-            <div id="resident-bills-container">
-                <h2>Mis Facturas</h2>
-                <div class="table-container">
-                    <table id="resident-bills-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha Vencimiento</th>
-                                <th>Monto</th>
-                                <th>Concepto</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="no-bills-message" class="info-message hidden">No tienes facturas pendientes.</div>
-            </div>
-            <div class="payment-instructions">
-                <h3>Instrucciones de Pago</h3>
-                <p>Para realizar el pago de tu factura de administración, por favor consigna a la siguiente cuenta:</p>
-                <ul>
-                    <li><strong>Banco:</strong> BANCOLOMBIA</li>
-                    <li><strong>Tipo de Cuenta:</strong> Ahorro</li>
-                    <li><strong>No. de Cuenta:</strong> 100-426029-73</li>
-                    <li><strong>A nombre de:</strong> EDIFICIO BAHÍA ETAPA A</li>
-                </ul>
-            </div>
-        </main>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
