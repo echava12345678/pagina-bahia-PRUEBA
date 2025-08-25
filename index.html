@@ -100,7 +100,7 @@
                     <div class="action-buttons">
                         <button id="show-upload-bills-btn" class="btn primary-btn"><i class="fas fa-upload"></i> Cargar por Excel</button>
                         <button id="show-add-bill-btn" class="btn primary-btn"><i class="fas fa-plus-circle"></i> Agregar Manualmente</button>
-                        <button type="button" class="btn primary-btn" id="show-automatic-bills-btn"><i class="fas fa-cogs"></i> Facturas automáticas</button>
+                        <button type="button" class="btn primary-btn" id="generate-monthly-invoices-btn">Facturas automáticas</button>
                     </div>
 
                     <div id="upload-bills-section" class="form-section hidden">
@@ -127,8 +127,9 @@
                                 </div>
                                 <div class="input-group">
                                     <label for="bill-amount">Monto ($)</label>
-                                    <input type="text" id="bill-amount" placeholder="Ej: 100.000" required>
+                                    <input type="number" id="bill-amount" step="0.01" required>
                                 </div>
+                
                             </div>
                             <div class="form-row">
                                 <div class="input-group">
@@ -150,33 +151,10 @@
                             </div>
                             <div class="input-group">
                 <label for="bill-paid-amount">Cuánto pagó</label>
-                <input type="text" id="bill-paid-amount" placeholder="Ej: 100.000" step="any" min="0" placeholder="Opcional">
+                <input type="number" id="bill-paid-amount" step="any" min="0" placeholder="Opcional">
             </div>
                             <div class="form-actions">
                                 <button type="submit" class="btn primary-btn">Agregar Factura</button>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <div id="automatic-bills-form" class="form-section hidden">
-                        <h3>Generar Facturas Automáticas</h3>
-                        <form id="generate-automatic-bills-form">
-                            <div class="form-row">
-                                <div class="input-group">
-                                    <label for="auto-bill-concept">Concepto</label>
-                                    <input type="text" id="auto-bill-concept" required>
-                                </div>
-                                <div class="input-group">
-                                    <label for="auto-bill-amount">Monto ($)</label>
-                                    <input type="text" id="auto-bill-amount" placeholder="Ej: 100.000" required>
-                                </div>
-                                <div class="input-group">
-                                    <label for="auto-bill-due-date">Fecha de Vencimiento</label>
-                                    <input type="date" id="auto-bill-due-date" required>
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn primary-btn">Generar Facturas</button>
                             </div>
                         </form>
                     </div>
@@ -290,12 +268,12 @@
                                 </div>
                                 <div class="input-group">
                                     <label for="edit-bill-amount">Monto ($)</label>
-                                    <input type="text" id="edit-bill-amount" step="0.01" required>
+                                    <input type="number" id="edit-bill-amount" step="0.01" required>
                                 </div>
                             </div>
                             <div class="input-group">
                 <label for="edit-bill-paid-amount">Cuánto pagó</label>
-                <input type="text" id="edit-bill-paid-amount" step="any" min="0" placeholder="Opcional">
+                <input type="number" id="edit-bill-paid-amount" step="any" min="0" placeholder="Opcional">
             </div>
                             <div class="form-row">
                                 <div class="input-group">
