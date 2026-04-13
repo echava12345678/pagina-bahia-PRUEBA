@@ -580,7 +580,7 @@ td .btn {
         margin-right: 3px !important;
     }
 }
-/* ========== HEADER MÁS CENTRADO Y PEQUEÑO EN MÓVIL ========== */
+
 @media (max-width: 768px) {
     /* Header más compacto */
     header {
@@ -639,7 +639,7 @@ td .btn {
         font-size: 12px !important;
     }
 }
-/* ========== ARREGLAR HEADER QUE SE SALE DE PANTALLA EN MÓVIL ========== */
+
 @media (max-width: 768px) {
     /* Header más compacto y que no se salga */
     header {
@@ -660,7 +660,7 @@ td .btn {
     
     /* Logo más pequeño y centrado */
     .logo-text {
-        font-size: 1rem !important;
+        font-size: 1.5rem !important;
         text-align: center !important;
         justify-content: center !important;
         width: 100% !important;
@@ -668,7 +668,7 @@ td .btn {
     }
     
     .logo-text img {
-        max-height: 30px !important;
+        max-height: 50px !important;
     }
     
     /* Texto "Panel de Administración" más pequeño y en una línea */
@@ -690,7 +690,7 @@ td .btn {
     
     /* Texto de bienvenida más pequeño */
     #admin-welcome, #resident-welcome {
-        font-size: 11px !important;
+        font-size: 9px !important;
         white-space: nowrap !important;
     }
     
