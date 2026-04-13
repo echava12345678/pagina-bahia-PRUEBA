@@ -877,14 +877,13 @@ adminPaymentsTableBody.addEventListener('click', async (e) => {
                 },
                 html2canvas: {
                     scale: 3
-                    useCORS: true,
-                    logging: false
+        
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait'
-                    compress: true
+                   
                 }
             };
             html2pdf().from(receiptContent).set(options).save();
@@ -1107,14 +1106,13 @@ if (dueDate) {
                 },
                 html2canvas: {
                     scale: 3
-                    useCORS: true,
-                    logging: false
+                    
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait'
-                    compress: true
+                    
                 }
             };
             html2pdf().from(receiptContent).set(options).save();
@@ -1563,14 +1561,13 @@ if (dueDate) {
                 },
                 html2canvas: {
                     scale: 3
-                    useCORS: true,
-                    logging: false
+                    
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait'
-                    compress: true
+                   
                 }
             };
             html2pdf().from(receiptContent).set(options).save();
