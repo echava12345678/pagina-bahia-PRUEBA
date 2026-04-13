@@ -476,3 +476,107 @@ td .btn {
         margin: 20px !important;
     }
 }
+/* ========== ESTILOS AGRESIVOS PARA MÓVIL ========== */
+@media (max-width: 768px) {
+    /* FORZAR QUE LOS BOTONES SEAN VERTICALES */
+    .action-buttons {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .action-buttons .btn {
+        width: 100% !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+        text-align: center !important;
+    }
+    
+    /* FORZAR QUE LOS CAMPOS DE FORMULARIO SEAN VERTICALES */
+    .form-row {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .form-row .input-group {
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* FORZAR SCROLL EN TABLAS */
+    .table-container {
+        overflow-x: scroll !important;
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    table {
+        width: 800px !important;
+        display: table !important;
+    }
+    
+    /* FORZAR QUE EL HEADER SEA VERTICAL */
+    .header-content {
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+    
+    .user-info {
+        display: flex !important;
+        justify-content: center !important;
+        margin-top: 10px !important;
+    }
+    
+    /* FORZAR QUE EL LOGIN SEA MÁS PEQUEÑO */
+    .login-container {
+        width: 90% !important;
+        padding: 20px !important;
+        margin: 20px auto !important;
+    }
+    
+    /* FORZAR MODALES A OCUPAR PANTALLA */
+    .modal-content {
+        width: 95% !important;
+        padding: 15px !important;
+        margin: 10px auto !important;
+    }
+    
+    /* FORZAR INPUTS A TAMAÑO COMPLETO */
+    input, select, .search-input {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* FORZAR QUE EL PANEL USE MENOS PADDING */
+    .panel-container {
+        padding: 0 8px !important;
+    }
+    
+    .admin-section, .resident-section {
+        padding: 15px !important;
+    }
+    
+    /* HACER LOS BOTONES DE LA TABLA MÁS PEQUEÑOS */
+    td .btn {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* TARJETAS DE SECCIÓN */
+    .admin-section, .resident-section {
+        margin-bottom: 15px !important;
+    }
+    
+    /* TÍTULOS MÁS PEQUEÑOS */
+    .section-title {
+        font-size: 1.2rem !important;
+    }
+    
+    /* BOTONES DE ACCIÓN EN TABLAS */
+    .btn i {
+        margin-right: 3px !important;
+    }
+}
