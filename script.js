@@ -869,14 +869,14 @@ adminPaymentsTableBody.addEventListener('click', async (e) => {
     </div>
 `;
              const options = {
-                margin: [10, 10, 10, 10],
+                margin: [3, 3, 3, 3],
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 3
+                    scale: 1
         
                 },
                 jsPDF: {
@@ -1098,14 +1098,14 @@ if (dueDate) {
     </div>
 `;
             const options = {
-                margin: [10, 10, 10, 10],
+                margin: [3, 3, 3, 3],
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 3
+                    scale: 1
                     
                 },
                 jsPDF: {
@@ -1553,14 +1553,14 @@ if (dueDate) {
     </div>
 `;
             const options = {
-                margin: [10, 10, 10, 10],
+                margin: [3, 3, 3, 3],
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 3
+                    scale: 1
                     
                 },
                 jsPDF: {
