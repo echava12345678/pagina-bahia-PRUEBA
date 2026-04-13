@@ -769,107 +769,126 @@ adminPaymentsTableBody.addEventListener('click', async (e) => {
             const finalCredit = Math.max(0, totalPaid - totalOwed);
             // --- Fin Lógica Corregida ---
 
-            const receiptContent = `
-    <div style="font-family: 'Poppins', sans-serif; padding: 15px; color: #333; width: 100%; box-sizing: border-box;">
-        <!-- Encabezado -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
-                    <strong style="font-size: 14px;">EDIFICIO BAHÍA ETAPA A</strong><br>
-                    Nit 901048187-4<br>
-                    Carrera 65 no. 42-101<br>
-                    Teléfono 3104086837 - Medellín
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Info factura -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px; width: 50%;">
-                    <strong>CUENTA DE COBRO No:</strong> ${bill.accountNumber || 'N/A'}<br>
-                    <strong>REFERENCIA DE PAGO:</strong> ${resident.depto}
-                </td>
-                <td style="border: 1px solid #000; padding: 8px; width: 50%;">
-                    <strong>PERIODO:</strong> ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
-                    <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Datos propietario -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">
-                    <strong>APTO:</strong> ${resident.depto}<br>
-                    <strong>COPROPIETARIO:</strong> ${resident.name.toUpperCase()}
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Tabla de conceptos -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-    <tr style="background-color: #f2f2f2;">
-        <th style="border: 1px solid #000; padding: 8px; text-align: left;">CONCEPTO</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">SALDO ANT</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">ESTE MES</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">A PAGAR</th>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">SALDO A FAVOR</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
-    </tr>
-</table>
-        
-        <!-- Totales -->
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 10px; width: 50%;">
-                    <strong>PAGADO ESTE MES</strong><br>
-                    <span style="font-size: 14px;">${formatCurrency(paidThisMonth)}</span>
-                </td>
-                <td style="border: 1px solid #000; padding: 10px; text-align: right; background-color: #f2f2f2; width: 50%;">
-                    <strong>TOTAL A PAGAR</strong><br>
-                    <span style="font-size: 16px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" style="border: 1px solid #000; padding: 10px; text-align: center; font-size: 10px;">
-                    CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
-                    A NOMBRE DE EDIFICIO BAHÍA ETAPA A
-                </td>
-            </tr>
-        </table>
-    </div>
+          const receiptContent = `
+<div style="font-family: 'Poppins', sans-serif; padding: 5px; color: #333; width: 100%; margin: 0 auto; font-size: 9px; box-sizing: border-box;">
+    
+    <!-- Encabezado -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px; text-align: center;">
+                <strong style="font-size: 10px;">EDIFICIO BAHÍA ETAPA A</strong><br>
+                Nit 901048187-4<br>
+                Carrera 65 no. 42-101<br>
+                Teléfono 3104086837 - Medellín
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Info factura -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px; width: 50%;">
+                <strong>CUENTA DE COBRO No:</strong> ${bill.accountNumber || 'N/A'}<br>
+                <strong>REFERENCIA DE PAGO:</strong> ${resident.depto}
+            </td>
+            <td style="border: 1px solid #000; padding: 4px; width: 50%;">
+                <strong>PERIODO:</strong> ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
+                <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Datos propietario -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px;">
+                <strong>APTO:</strong> ${resident.depto}<br>
+                <strong>COPROPIETARIO:</strong> ${resident.name.toUpperCase()}
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Tabla de conceptos COMPACTA -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: left; width: 40%;">CONCEPTO</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 18%;">SALDO ANT</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 20%;">ESTE MES</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 22%;">A PAGAR</th>
+        </tr>
+        <!-- Administración -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">${bill.concept}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.amount)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
+        </tr>
+        <!-- INTERESES -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">INTERESES (1.5%)</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(multa)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(multa)}</td>
+        </tr>
+        <!-- SALDO A FAVOR -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">SALDO A FAVOR</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+        </tr>
+        <!-- MULTAS -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">MULTAS</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+        </tr>
+        ${bill.finesConcept ? `
+        <tr>
+            <td colspan="4" style="border: 1px solid #000; padding: 3px 2px; font-size: 7px; font-style: italic;">
+                Concepto multa: ${bill.finesConcept}
+            </td>
+        </tr>` : ''}
+        <!-- CUOTAS EXTRAS -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">CUOTAS EXTRAS</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+        </tr>
+        ${bill.extraFeesConcept ? `
+        <tr>
+            <td colspan="4" style="border: 1px solid #000; padding: 3px 2px; font-size: 7px; font-style: italic;">
+                Concepto cuota extra: ${bill.extraFeesConcept}
+            </td>
+        </tr>` : ''}
+    </table>
+    
+    <!-- Totales -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 6px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 6px 4px; width: 50%;">
+                <strong>PAGADO ESTE MES</strong><br>
+                <span style="font-size: 10px;">${formatCurrency(paidThisMonth)}</span>
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 4px; text-align: right; background-color: #f2f2f2; width: 50%;">
+                <strong>TOTAL A PAGAR</strong><br>
+                <span style="font-size: 11px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 7px;">
+                CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
+                A NOMBRE DE EDIFICIO BAHÍA ETAPA A
+            </td>
+        </tr>
+    </table>
+    
+</div>
 `;
              const options = {
-                margin: 0,
+                margin: 2,
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
@@ -998,107 +1017,126 @@ if (dueDate) {
             const finalAmount = Math.max(0, totalOwed - totalPaid);
             const finalCredit = Math.max(0, totalPaid - totalOwed);
 
-            const receiptContent = `
-    <div style="font-family: 'Poppins', sans-serif; padding: 15px; color: #333; width: 100%; box-sizing: border-box;">
-        <!-- Encabezado -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
-                    <strong style="font-size: 14px;">EDIFICIO BAHÍA ETAPA A</strong><br>
-                    Nit 901048187-4<br>
-                    Carrera 65 no. 42-101<br>
-                    Teléfono 3104086837 - Medellín
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Info factura -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px; width: 50%;">
-                    <strong>CUENTA DE COBRO No:</strong> ${bill.accountNumber || 'N/A'}<br>
-                    <strong>REFERENCIA DE PAGO:</strong> ${resident.depto}
-                </td>
-                <td style="border: 1px solid #000; padding: 8px; width: 50%;">
-                    <strong>PERIODO:</strong> ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
-                    <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Datos propietario -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">
-                    <strong>APTO:</strong> ${resident.depto}<br>
-                    <strong>COPROPIETARIO:</strong> ${resident.name.toUpperCase()}
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Tabla de conceptos -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-    <tr style="background-color: #f2f2f2;">
-        <th style="border: 1px solid #000; padding: 8px; text-align: left;">CONCEPTO</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">SALDO ANT</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">ESTE MES</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">A PAGAR</th>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">SALDO A FAVOR</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
-    </tr>
-</table>
-        
-        <!-- Totales -->
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 10px; width: 50%;">
-                    <strong>PAGADO ESTE MES</strong><br>
-                    <span style="font-size: 14px;">${formatCurrency(paidThisMonth)}</span>
-                </td>
-                <td style="border: 1px solid #000; padding: 10px; text-align: right; background-color: #f2f2f2; width: 50%;">
-                    <strong>TOTAL A PAGAR</strong><br>
-                    <span style="font-size: 16px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" style="border: 1px solid #000; padding: 10px; text-align: center; font-size: 10px;">
-                    CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
-                    A NOMBRE DE EDIFICIO BAHÍA ETAPA A
-                </td>
-            </tr>
-        </table>
-    </div>
+           const receiptContent = `
+<div style="font-family: 'Poppins', sans-serif; padding: 5px; color: #333; width: 100%; margin: 0 auto; font-size: 9px; box-sizing: border-box;">
+    
+    <!-- Encabezado -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px; text-align: center;">
+                <strong style="font-size: 10px;">EDIFICIO BAHÍA ETAPA A</strong><br>
+                Nit 901048187-4<br>
+                Carrera 65 no. 42-101<br>
+                Teléfono 3104086837 - Medellín
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Info factura -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px; width: 50%;">
+                <strong>CUENTA DE COBRO No:</strong> ${bill.accountNumber || 'N/A'}<br>
+                <strong>REFERENCIA DE PAGO:</strong> ${resident.depto}
+            </td>
+            <td style="border: 1px solid #000; padding: 4px; width: 50%;">
+                <strong>PERIODO:</strong> ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
+                <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Datos propietario -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px;">
+                <strong>APTO:</strong> ${resident.depto}<br>
+                <strong>COPROPIETARIO:</strong> ${resident.name.toUpperCase()}
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Tabla de conceptos COMPACTA -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: left; width: 40%;">CONCEPTO</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 18%;">SALDO ANT</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 20%;">ESTE MES</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 22%;">A PAGAR</th>
+        </tr>
+        <!-- Administración -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">${bill.concept}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.amount)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
+        </tr>
+        <!-- INTERESES -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">INTERESES (1.5%)</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(multa)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(multa)}</td>
+        </tr>
+        <!-- SALDO A FAVOR -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">SALDO A FAVOR</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+        </tr>
+        <!-- MULTAS -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">MULTAS</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+        </tr>
+        ${bill.finesConcept ? `
+        <tr>
+            <td colspan="4" style="border: 1px solid #000; padding: 3px 2px; font-size: 7px; font-style: italic;">
+                Concepto multa: ${bill.finesConcept}
+            </td>
+        </tr>` : ''}
+        <!-- CUOTAS EXTRAS -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">CUOTAS EXTRAS</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+        </tr>
+        ${bill.extraFeesConcept ? `
+        <tr>
+            <td colspan="4" style="border: 1px solid #000; padding: 3px 2px; font-size: 7px; font-style: italic;">
+                Concepto cuota extra: ${bill.extraFeesConcept}
+            </td>
+        </tr>` : ''}
+    </table>
+    
+    <!-- Totales -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 6px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 6px 4px; width: 50%;">
+                <strong>PAGADO ESTE MES</strong><br>
+                <span style="font-size: 10px;">${formatCurrency(paidThisMonth)}</span>
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 4px; text-align: right; background-color: #f2f2f2; width: 50%;">
+                <strong>TOTAL A PAGAR</strong><br>
+                <span style="font-size: 11px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 7px;">
+                CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
+                A NOMBRE DE EDIFICIO BAHÍA ETAPA A
+            </td>
+        </tr>
+    </table>
+    
+</div>
 `;
             const options = {
-                margin: 0,
+                margin: 2,
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
@@ -1454,106 +1492,125 @@ if (dueDate) {
             const finalCredit = Math.max(0, totalPaid - totalOwed);
 
             const receiptContent = `
-    <div style="font-family: 'Poppins', sans-serif; padding: 15px; color: #333; width: 100%; box-sizing: border-box;">
-        <!-- Encabezado -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
-                    <strong style="font-size: 14px;">EDIFICIO BAHÍA ETAPA A</strong><br>
-                    Nit 901048187-4<br>
-                    Carrera 65 no. 42-101<br>
-                    Teléfono 3104086837 - Medellín
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Info factura -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px; width: 50%;">
-                    <strong>CUENTA DE COBRO No:</strong> ${bill.accountNumber || 'N/A'}<br>
-                    <strong>REFERENCIA DE PAGO:</strong> ${resident.depto}
-                </td>
-                <td style="border: 1px solid #000; padding: 8px; width: 50%;">
-                    <strong>PERIODO:</strong> ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
-                    <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Datos propietario -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">
-                    <strong>APTO:</strong> ${resident.depto}<br>
-                    <strong>COPROPIETARIO:</strong> ${resident.name.toUpperCase()}
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Tabla de conceptos -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-    <tr style="background-color: #f2f2f2;">
-        <th style="border: 1px solid #000; padding: 8px; text-align: left;">CONCEPTO</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">SALDO ANT</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">ESTE MES</th>
-        <th style="border: 1px solid #000; padding: 8px; text-align: right;">A PAGAR</th>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">SALDO A FAVOR</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
-        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
-    </tr>
-</table>
-        
-        <!-- Totales -->
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="border: 1px solid #000; padding: 10px; width: 50%;">
-                    <strong>PAGADO ESTE MES</strong><br>
-                    <span style="font-size: 14px;">${formatCurrency(paidThisMonth)}</span>
-                </td>
-                <td style="border: 1px solid #000; padding: 10px; text-align: right; background-color: #f2f2f2; width: 50%;">
-                    <strong>TOTAL A PAGAR</strong><br>
-                    <span style="font-size: 16px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" style="border: 1px solid #000; padding: 10px; text-align: center; font-size: 10px;">
-                    CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
-                    A NOMBRE DE EDIFICIO BAHÍA ETAPA A
-                </td>
-            </tr>
-        </table>
-    </div>
+<div style="font-family: 'Poppins', sans-serif; padding: 5px; color: #333; width: 100%; margin: 0 auto; font-size: 9px; box-sizing: border-box;">
+    
+    <!-- Encabezado -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px; text-align: center;">
+                <strong style="font-size: 10px;">EDIFICIO BAHÍA ETAPA A</strong><br>
+                Nit 901048187-4<br>
+                Carrera 65 no. 42-101<br>
+                Teléfono 3104086837 - Medellín
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Info factura -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px; width: 50%;">
+                <strong>CUENTA DE COBRO No:</strong> ${bill.accountNumber || 'N/A'}<br>
+                <strong>REFERENCIA DE PAGO:</strong> ${resident.depto}
+            </td>
+            <td style="border: 1px solid #000; padding: 4px; width: 50%;">
+                <strong>PERIODO:</strong> ${new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()}<br>
+                <strong>FECHA VENCIMIENTO:</strong> ${formatDate(bill.dueDate)}
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Datos propietario -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 4px;">
+                <strong>APTO:</strong> ${resident.depto}<br>
+                <strong>COPROPIETARIO:</strong> ${resident.name.toUpperCase()}
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Tabla de conceptos COMPACTA -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8px;">
+        <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: left; width: 40%;">CONCEPTO</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 18%;">SALDO ANT</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 20%;">ESTE MES</th>
+            <th style="border: 1px solid #000; padding: 3px 2px; text-align: right; width: 22%;">A PAGAR</th>
+        </tr>
+        <!-- Administración -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">${bill.concept}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.amount)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
+        </tr>
+        <!-- INTERESES -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">INTERESES (1.5%)</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(multa)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(multa)}</td>
+        </tr>
+        <!-- SALDO A FAVOR -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">SALDO A FAVOR</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+        </tr>
+        <!-- MULTAS -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">MULTAS</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+        </tr>
+        ${bill.finesConcept ? `
+        <tr>
+            <td colspan="4" style="border: 1px solid #000; padding: 3px 2px; font-size: 7px; font-style: italic;">
+                Concepto multa: ${bill.finesConcept}
+            </td>
+        </tr>` : ''}
+        <!-- CUOTAS EXTRAS -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 3px 2px;">CUOTAS EXTRAS</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">-</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+            <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+        </tr>
+        ${bill.extraFeesConcept ? `
+        <tr>
+            <td colspan="4" style="border: 1px solid #000; padding: 3px 2px; font-size: 7px; font-style: italic;">
+                Concepto cuota extra: ${bill.extraFeesConcept}
+            </td>
+        </tr>` : ''}
+    </table>
+    
+    <!-- Totales -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 6px;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 6px 4px; width: 50%;">
+                <strong>PAGADO ESTE MES</strong><br>
+                <span style="font-size: 10px;">${formatCurrency(paidThisMonth)}</span>
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 4px; text-align: right; background-color: #f2f2f2; width: 50%;">
+                <strong>TOTAL A PAGAR</strong><br>
+                <span style="font-size: 11px; font-weight: bold;">${formatCurrency(finalAmount)}</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 7px;">
+                CONSIGNAR A LA CUENTA DE AHORRO BANCOLOMBIA No 100-426029-73<br>
+                A NOMBRE DE EDIFICIO BAHÍA ETAPA A
+            </td>
+        </tr>
+    </table>
+    
+</div>
 `;
             const options = {
-                margin: 0,
+                margin: 2,
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
