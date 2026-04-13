@@ -809,43 +809,43 @@ adminPaymentsTableBody.addEventListener('click', async (e) => {
         
         <!-- Tabla de conceptos -->
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr style="background-color: #f2f2f2;">
-                <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 40%;">CONCEPTO</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">SALDO ANT</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">ESTE MES</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">A PAGAR</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-            </tr>
-            ${multa > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-            </tr>
-            ` : ''}
-            ${(bill.fines || 0) > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines)}</td>
-            </tr>
-            ` : ''}
-            ${(bill.extraFees || 0) > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees)}</td>
-            </tr>
-            ` : ''}
-        </table>
+    <tr style="background-color: #f2f2f2;">
+        <th style="border: 1px solid #000; padding: 8px; text-align: left;">CONCEPTO</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">SALDO ANT</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">ESTE MES</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">A PAGAR</th>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">SALDO A FAVOR</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+    </tr>
+</table>
         
         <!-- Totales -->
         <table style="width: 100%; border-collapse: collapse;">
@@ -868,20 +868,23 @@ adminPaymentsTableBody.addEventListener('click', async (e) => {
         </table>
     </div>
 `;
-            const options = {
-                margin:[5, 5, 5, 5],
+             const options = {
+                margin: [10, 10, 10, 10],
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 1.8
+                    scale: 3
+                    useCORS: true,
+                    logging: false
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait'
+                    compress: true
                 }
             };
             html2pdf().from(receiptContent).set(options).save();
@@ -1036,43 +1039,43 @@ if (dueDate) {
         
         <!-- Tabla de conceptos -->
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr style="background-color: #f2f2f2;">
-                <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 40%;">CONCEPTO</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">SALDO ANT</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">ESTE MES</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">A PAGAR</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-            </tr>
-            ${multa > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-            </tr>
-            ` : ''}
-            ${(bill.fines || 0) > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines)}</td>
-            </tr>
-            ` : ''}
-            ${(bill.extraFees || 0) > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees)}</td>
-            </tr>
-            ` : ''}
-        </table>
+    <tr style="background-color: #f2f2f2;">
+        <th style="border: 1px solid #000; padding: 8px; text-align: left;">CONCEPTO</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">SALDO ANT</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">ESTE MES</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">A PAGAR</th>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">SALDO A FAVOR</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+    </tr>
+</table>
         
         <!-- Totales -->
         <table style="width: 100%; border-collapse: collapse;">
@@ -1096,19 +1099,22 @@ if (dueDate) {
     </div>
 `;
             const options = {
-                margin: [5, 5, 5, 5],
+                margin: [10, 10, 10, 10],
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 1.8
+                    scale: 3
+                    useCORS: true,
+                    logging: false
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait'
+                    compress: true
                 }
             };
             html2pdf().from(receiptContent).set(options).save();
@@ -1489,43 +1495,43 @@ if (dueDate) {
         
         <!-- Tabla de conceptos -->
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-            <tr style="background-color: #f2f2f2;">
-                <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 40%;">CONCEPTO</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">SALDO ANT</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">ESTE MES</th>
-                <th style="border: 1px solid #000; padding: 8px; text-align: right; width: 20%;">A PAGAR</th>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
-            </tr>
-            ${multa > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
-            </tr>
-            ` : ''}
-            ${(bill.fines || 0) > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines)}</td>
-            </tr>
-            ` : ''}
-            ${(bill.extraFees || 0) > 0 ? `
-            <tr>
-                <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees)}</td>
-                <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees)}</td>
-            </tr>
-            ` : ''}
-        </table>
+    <tr style="background-color: #f2f2f2;">
+        <th style="border: 1px solid #000; padding: 8px; text-align: left;">CONCEPTO</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">SALDO ANT</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">ESTE MES</th>
+        <th style="border: 1px solid #000; padding: 8px; text-align: right;">A PAGAR</th>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">${bill.concept}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.amount)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAnteriorAjustado + bill.amount)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">INTERESES (1.5%)</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(multa)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">SALDO A FAVOR</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(saldoAFavorFinal)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">MULTAS</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.fines || 0)}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid #000; padding: 8px;">CUOTAS EXTRAS</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">-</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+        <td style="border: 1px solid #000; padding: 8px; text-align: right;">${formatCurrency(bill.extraFees || 0)}</td>
+    </tr>
+</table>
         
         <!-- Totales -->
         <table style="width: 100%; border-collapse: collapse;">
@@ -1549,19 +1555,22 @@ if (dueDate) {
     </div>
 `;
             const options = {
-                margin: [5, 5, 5, 5],
+                margin: [10, 10, 10, 10],
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 1.8
+                    scale: 3
+                    useCORS: true,
+                    logging: false
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait'
+                    compress: true
                 }
             };
             html2pdf().from(receiptContent).set(options).save();
