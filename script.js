@@ -1285,27 +1285,42 @@ async function loadResidentBills(residentId) {
         if (billsSnapshot.empty) {
             residentBillsTableBody.innerHTML = `<tr><td colspan="5">No se encontraron facturas pendientes.</td></tr>`;
         } else {
+            
+            const bills = [];
             billsSnapshot.forEach(doc => {
-                const bill = doc.data();
+                bills.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            
+            bills.sort((a, b) => {
+                const dateA = a.dueDate ? new Date(a.dueDate.seconds * 1000) : new Date(0);
+                const dateB = b.dueDate ? new Date(b.dueDate.seconds * 1000) : new Date(0);
+                return dateA - dateB;  // Orden ascendente (más antiguo primero)
+            });
+            
+            
+            bills.forEach(bill => {
                 const today = new Date();
                 // Normaliza la fecha de vencimiento a solo día, mes y año
                 const dueDate = bill.dueDate ? new Date(bill.dueDate.seconds * 1000) : null;
                 let isLate = false;
 
-if (dueDate && bill.status === 'Pendiente') {
-    dueDate.setHours(0, 0, 0, 0);
-    
-    // 🟢 Calcular un día después del vencimiento
-    const oneDayAfterDue = new Date(dueDate);
-    oneDayAfterDue.setDate(oneDayAfterDue.getDate() + 1);
-    oneDayAfterDue.setHours(0, 0, 0, 0);
-    
-    isLate = today > oneDayAfterDue;
-}
+                if (dueDate && bill.status === 'Pendiente') {
+                    dueDate.setHours(0, 0, 0, 0);
+                    
+                    // Calcular un día después del vencimiento
+                    const oneDayAfterDue = new Date(dueDate);
+                    oneDayAfterDue.setDate(oneDayAfterDue.getDate() + 1);
+                    oneDayAfterDue.setHours(0, 0, 0, 0);
+                    
+                    isLate = today > oneDayAfterDue;
+                }
 
                 const row = residentBillsTableBody.insertRow();
-                row.dataset.id = doc.id;
-                // FIX: Agregadas las columnas de monto y fecha de pago para igualar la vista de admin
+                row.dataset.id = bill.id;
                 row.innerHTML = `
                     <td>${bill.concept}</td>
                     <td>${formatCurrency(bill.amount)}</td>
@@ -1314,7 +1329,7 @@ if (dueDate && bill.status === 'Pendiente') {
                     <td>${formatDate(bill.paymentDate)}</td>
                     <td class="status-${bill.status.toLowerCase()} ${isLate ? 'status-multa' : ''}">${bill.status} ${isLate ? '(Multa)' : ''}</td>
                     <td>
-                        <button class="btn primary-btn download-receipt-btn" data-id="${doc.id}">
+                        <button class="btn primary-btn download-receipt-btn" data-id="${bill.id}">
                             <i class="fas fa-file-download"></i> Descargar Recibo
                         </button>
                     </td>
