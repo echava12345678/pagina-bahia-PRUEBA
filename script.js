@@ -1581,3 +1581,31 @@ if (dueDate) {
         }
     }
 });
+// ========== AGREGAR * A CAMPOS OBLIGATORIOS AUTOMÁTICAMENTE ==========
+function agregarAsteriscoCamposObligatorios() {
+    // Seleccionar todos los formularios
+    const formularios = document.querySelectorAll('form');
+    
+    formularios.forEach(formulario => {
+        // Buscar todos los campos obligatorios dentro del formulario
+        const camposObligatorios = formulario.querySelectorAll('input[required], select[required]');
+        
+        camposObligatorios.forEach(campo => {
+            // Buscar la etiqueta asociada al campo
+            const label = document.querySelector(`label[for="${campo.id}"]`);
+            
+            if (label && !label.innerHTML.includes('*')) {
+                // Agregar el asterisco al final del texto
+                label.innerHTML = label.innerHTML + ' <span style="color: #E74C3C; font-weight: bold;">*</span>';
+            }
+        });
+    });
+}
+
+// Ejecutar cuando la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    agregarAsteriscoCamposObligatorios();
+});
+
+// También ejecutar después de cargar dinámicamente (por si hay modales)
+setTimeout(agregarAsteriscoCamposObligatorios, 1000);
