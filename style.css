@@ -585,6 +585,8 @@ td .btn {
     /* Header más compacto */
     header {
         padding: 8px 12px !important;
+         width: 100% !important;
+        overflow-x: hidden !important;
     }
     
     /* Logo más pequeño y centrado */
@@ -635,5 +637,103 @@ td .btn {
     /* Quitar márgenes extra */
     .user-info span {
         font-size: 12px !important;
+    }
+}
+/* ========== ARREGLAR HEADER QUE SE SALE DE PANTALLA EN MÓVIL ========== */
+@media (max-width: 768px) {
+    /* Header más compacto y que no se salga */
+    header {
+        padding: 8px 12px !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Contenedor del header que no se desborde */
+    .header-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Logo más pequeño y centrado */
+    .logo-text {
+        font-size: 1rem !important;
+        text-align: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .logo-text img {
+        max-height: 30px !important;
+    }
+    
+    /* Texto "Panel de Administración" más pequeño y en una línea */
+    .logo-text {
+        font-size: 0.9rem !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Contenedor de usuario (bienvenida + botón salir) */
+    .user-info {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        flex-wrap: wrap !important;
+    }
+    
+    /* Texto de bienvenida más pequeño */
+    #admin-welcome, #resident-welcome {
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Botón salir más pequeño */
+    .logout-btn {
+        padding: 5px 10px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Quitar scroll horizontal del body */
+    body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+    }
+    
+    /* Asegurar que nada se salga */
+    .page {
+        overflow-x: hidden !important;
+        width: 100% !important;
+    }
+}
+
+/* Para pantallas muy pequeñas (iPhone SE 320px) */
+@media (max-width: 380px) {
+    .logo-text {
+        font-size: 0.8rem !important;
+    }
+    
+    .logo-text img {
+        max-height: 25px !important;
+    }
+    
+    #admin-welcome, #resident-welcome {
+        font-size: 10px !important;
+    }
+    
+    .logout-btn {
+        padding: 4px 8px !important;
+        font-size: 10px !important;
+    }
+    
+    .user-info {
+        gap: 5px !important;
     }
 }
