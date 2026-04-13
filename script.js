@@ -876,7 +876,7 @@ adminPaymentsTableBody.addEventListener('click', async (e) => {
 </div>
 `;
             const options = {
-                margin: 10,
+                margin: 2,
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
