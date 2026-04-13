@@ -1110,7 +1110,7 @@ if (dueDate) {
 </div>
 `;
             const options = {
-                margin: 10,
+                margin: 2,
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
@@ -1570,7 +1570,7 @@ if (dueDate) {
 </div>
 `;
             const options = {
-                margin: 10,
+                margin: 2,
                 filename: `Recibo_${resident.depto}_${bill.concept}.pdf`,
                 image: {
                     type: 'jpeg',
