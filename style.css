@@ -660,7 +660,7 @@ td .btn {
     
     /* Logo más pequeño y centrado */
     .logo-text {
-        font-size: 1.5rem !important;
+        font-size: 1.8rem !important;
         text-align: center !important;
         justify-content: center !important;
         width: 100% !important;
@@ -668,7 +668,7 @@ td .btn {
     }
     
     .logo-text img {
-        max-height: 50px !important;
+        max-height: 60px !important;
     }
     
     /* Texto "Panel de Administración" más pequeño y en una línea */
