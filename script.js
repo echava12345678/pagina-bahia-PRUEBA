@@ -876,7 +876,7 @@ adminPaymentsTableBody.addEventListener('click', async (e) => {
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 1
+                    scale: 5
         
                 },
                 jsPDF: {
@@ -1105,7 +1105,7 @@ if (dueDate) {
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 1
+                    scale: 5
                     
                 },
                 jsPDF: {
@@ -1560,7 +1560,7 @@ if (dueDate) {
                     quality: 0.98
                 },
                 html2canvas: {
-                    scale: 1
+                    scale: 5
                     
                 },
                 jsPDF: {
